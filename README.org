@@ -166,3 +166,12 @@ Since we're n00bs, we need to see the key options sometimes.
   :init
   (vertico-mode))
 #+END_SRC
+**** orderless.el
+Basically, we want to select items orderless instead of matching completions from beginning to end?
+#+BEGIN_SRC emacs-lisp
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+#+END_SRC
