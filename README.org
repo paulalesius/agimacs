@@ -6,6 +6,7 @@
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/early-init.el
 :END:
+
 *** To prevent package.el from loading packages prior to their init-file loading (with straight.el? What init file?)
 #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil)
@@ -49,12 +50,35 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 #+END_SRC
+
 ** Initialization
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
 :END:
+
 *** use-package.el
 #+BEGIN_SRC emacs-lisp
 (straight-use-package 'use-package)
 #+END_SRC
-*** Packages
+
+*** doom-themes.el
+This will install Doom Themes megapack, a collection of themes. And load the doom-one theme. The (doom-themes-visual-bell-config) is documented that it may potentially not work with all modelines, but we keep it simple with doom modeline.
+#+BEGIN_SRC emacs-lisp
+(use-package doom-themes
+  :config
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (load-theme 'doom-one t)
+  (doom-themes-visual-bell-config)
+  (doom-themes-org-config))
+#+END_SRC
+
+*** doom-modeline.el
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+#+END_SRC
+
+#+RESULTS:
+: doom-modeline
