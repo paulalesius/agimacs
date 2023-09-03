@@ -53,7 +53,12 @@
     :states '(normal visual))
   (my-leader-def
    "ff" 'find-file
-   "fr" 'recentf-open-files))
+   "fr" 'recentf-open-files
+
+    ;; flycheck
+   "cn" 'flycheck-next-error
+   "cp" 'flycheck-previous-error
+   "cl" 'flycheck-list-errors))
 
 (use-package projectile
   :config
@@ -87,27 +92,21 @@
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 
-(use-package python
-  :ensure nil
-  :config
-  ;; IPython REPL
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "-i --simple-prompt"))
-
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook
   (python-mode . lsp-deferred)
-  :config
+  :init
   (setq lsp-clients-python-command "pylsp"
         lsp-enable-snippet nil)
+  :config
   (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :hook
   (lsp-mode . lsp-ui-mode)
-  :config
+  :init
   (setq lsp-ui-sideline-enable t
         lsp-ui-sideline-show-hover t
         lsp-ui-sideline-diagnostics t
@@ -118,6 +117,22 @@
 
 (use-package company-lsp
   :commands company-lsp)
+
+(use-package flycheck
+  :after lsp-mode
+  ;;:hook (lsp-mode . flycheck-mode)
+  :init
+  (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
+        flycheck-idle-change-delay 0.8)
+  :config
+  (global-flycheck-mode t))
+
+(use-package python
+  :ensure nil)
+  ;;:config
+  ;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
+  ;;(setq python-shell-interpreter "ipython"
+  ;;      python-shell-interpreter-args "-i --simple-prompt"))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

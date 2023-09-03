@@ -141,7 +141,12 @@ For easier key binding definitions.
     :states '(normal visual))
   (my-leader-def
    "ff" 'find-file
-   "fr" 'recentf-open-files))
+   "fr" 'recentf-open-files
+
+    ;; flycheck
+   "cn" 'flycheck-next-error
+   "cp" 'flycheck-previous-error
+   "cl" 'flycheck-list-errors))
 #+END_SRC
 
 **** projectile.el
@@ -195,26 +200,16 @@ Basically, we want to select items orderless instead of matching completions fro
 #+END_SRC
 
 *** Languages
-**** python.el
-Is provided by emacs, so ensure nil
-#+BEGIN_SRC emacs-lisp
-(use-package python
-  :ensure nil
-  :config
-  ;; IPython REPL
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "-i --simple-prompt"))
-#+END_SRC
-
 **** lsp-mode.el and lsp-ui.el
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook
   (python-mode . lsp-deferred)
-  :config
+  :init
   (setq lsp-clients-python-command "pylsp"
         lsp-enable-snippet nil)
+  :config
   (lsp-enable-which-key-integration t))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
@@ -222,7 +217,7 @@ Is provided by emacs, so ensure nil
   :commands lsp-ui-mode
   :hook
   (lsp-mode . lsp-ui-mode)
-  :config
+  :init
   (setq lsp-ui-sideline-enable t
         lsp-ui-sideline-show-hover t
         lsp-ui-sideline-diagnostics t
@@ -234,4 +229,27 @@ Is provided by emacs, so ensure nil
 #+BEGIN_SRC emacs-lisp
 (use-package company-lsp
   :commands company-lsp)
+#+END_SRC
+
+**** flycheck.el
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :after lsp-mode
+  ;;:hook (lsp-mode . flycheck-mode)
+  :init
+  (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
+        flycheck-idle-change-delay 0.8)
+  :config
+  (global-flycheck-mode t))
+#+END_SRC
+
+**** python.el
+Is provided by emacs, so ensure nil
+#+BEGIN_SRC emacs-lisp
+(use-package python
+  :ensure nil)
+  ;;:config
+  ;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
+  ;;(setq python-shell-interpreter "ipython"
+  ;;      python-shell-interpreter-args "-i --simple-prompt"))
 #+END_SRC
