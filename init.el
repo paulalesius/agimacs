@@ -10,4 +10,8 @@
 
 (use-package doom-modeline
   :ensure t
-  :init (doom-modeline-mode 1))
+  :config
+  (setq doom-modeline-project-detection 'projectile
+        doom-modeline-buffer-file-name-style 'truncate-upto-project)
+  :hook (after-init . doom-modeline-mode))
+(message "Hello")
