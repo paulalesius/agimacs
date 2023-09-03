@@ -20,7 +20,11 @@
   ;; Enable recentf mode
   (recentf-mode 1)
   (setq recentf-max-menu-items 100
-        recentf-max-saved-items 100))
+        recentf-max-saved-items 100)
+
+  ;; Misc tweaks
+  (menu-bar-mode -1)
+  (tool-bar-mode -1))
 
 (use-package doom-themes
   :init
@@ -58,7 +62,12 @@
     ;; flycheck
    "cn" 'flycheck-next-error
    "cp" 'flycheck-previous-error
-   "cl" 'flycheck-list-errors))
+   "cl" 'flycheck-list-errors
+
+    ;; help
+   "hk" 'describe-key
+   "hm" 'describe-mode
+   "hv" 'describe-variable))
 
 (use-package projectile
   :config
@@ -98,7 +107,8 @@
   (python-mode . lsp-deferred)
   :init
   (setq lsp-clients-python-command "pylsp"
-        lsp-enable-snippet nil)
+        lsp-enable-snippet nil
+        lsp-headerline-breadcrumb-enable nil)
   :config
   (lsp-enable-which-key-integration t))
 

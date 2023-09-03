@@ -94,7 +94,11 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
   ;; Enable recentf mode
   (recentf-mode 1)
   (setq recentf-max-menu-items 100
-        recentf-max-saved-items 100))
+        recentf-max-saved-items 100)
+
+  ;; Misc tweaks
+  (menu-bar-mode -1)
+  (tool-bar-mode -1))
 #+END_SRC
 
 *** Infrastructure
@@ -146,7 +150,12 @@ For easier key binding definitions.
     ;; flycheck
    "cn" 'flycheck-next-error
    "cp" 'flycheck-previous-error
-   "cl" 'flycheck-list-errors))
+   "cl" 'flycheck-list-errors
+
+    ;; help
+   "hk" 'describe-key
+   "hm" 'describe-mode
+   "hv" 'describe-variable))
 #+END_SRC
 
 **** projectile.el
@@ -208,7 +217,8 @@ Basically, we want to select items orderless instead of matching completions fro
   (python-mode . lsp-deferred)
   :init
   (setq lsp-clients-python-command "pylsp"
-        lsp-enable-snippet nil)
+        lsp-enable-snippet nil
+        lsp-headerline-breadcrumb-enable nil)
   :config
   (lsp-enable-which-key-integration t))
 #+END_SRC
