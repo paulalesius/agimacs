@@ -23,6 +23,15 @@
   :config
   (evil-collection-init))
 
+(use-package general
+  :after evil
+  :config
+  (general-create-definer my-leader-def
+    :prefix "<SPC>"
+    :states '(normal visual))
+  (my-leader-def
+   "ff" 'find-file))
+
 (use-package projectile
   :config
   (projectile-mode +1)

@@ -94,6 +94,19 @@ This will install Doom Themes megapack, a collection of themes. And load the doo
   (evil-collection-init))
 #+END_SRC
 
+**** general.el
+For easier key binding definitions.
+#+BEGIN_SRC emacs-lisp
+(use-package general
+  :after evil
+  :config
+  (general-create-definer my-leader-def
+    :prefix "<SPC>"
+    :states '(normal visual))
+  (my-leader-def
+   "ff" 'find-file))
+#+END_SRC
+
 **** projectile.el
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
