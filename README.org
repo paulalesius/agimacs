@@ -1,0 +1,60 @@
+#+PROPERTY: header-args :tangle no
+#+PROPERTY: header-args:emacs-lisp+ :comments link
+
+* Pauls Literate Emacs Config
+** Early Initialization
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle ~/.emacs.custom/early-init.el
+:END:
+*** To prevent package.el from loading packages prior to their init-file loading (with straight.el? What init file?)
+#+BEGIN_SRC emacs-lisp
+(setq package-enable-at-startup nil)
+(setq hello2 t)
+#+END_SRC
+
+*** Defer compilation of LISP files
+When using gccemacs
+#+BEGIN_SRC emacs-lisp
+(setq comp-deferred-compilation t)
+#+END_SRC
+
+*** Garbage collection during boot
+Emacs starts up with a relatively low garbage collection limit to speed up load time.
+We can optimize this by increasing the limit during initialization.
+#+BEGIN_SRC emacs-lisp
+(setq old-gc-cons-threshold gc-cons-threshold)
+(setq gc-cons-threshold most-positive-fixnum)
+(add-hook 'emacs-startup-hook
+          (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
+#+END_SRC
+
+*** Configure straight.
+Make every (use-package) also invoke straight.el making specifying ":straight t" unnecessary.
+
+#+BEGIN_SRC emacs-lisp
+(setq straight-use-package-by-default t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+END_SRC
+** Initialization
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
+:END:
+*** use-package.el
+#+BEGIN_SRC emacs-lisp
+(straight-use-package 'use-package)
+#+END_SRC
+*** Packages
