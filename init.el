@@ -1,5 +1,22 @@
 (straight-use-package 'use-package)
 
+(use-package emacs
+  :init
+  (savehist-mode)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
+
+  ;; Enable recursive minibuffers
+  (setq enable-recursive-minibuffers t))
+
 (use-package doom-themes
   :init
   (setq doom-themes-enable-bold t
@@ -27,7 +44,7 @@
   :after evil
   :config
   (general-create-definer my-leader-def
-    :prefix "<SPC>"
+    :prefix "SPC"
     :states '(normal visual))
   (my-leader-def
    "ff" 'find-file))
@@ -53,3 +70,7 @@
   :config
   (which-key-mode)
   (which-key-setup-minibuffer))
+
+(use-package vertico
+  :init
+  (vertico-mode))
