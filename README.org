@@ -51,6 +51,18 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
   (load bootstrap-file nil 'nomessage))
 #+END_SRC
 
+*** Startup stats
+#+BEGIN_SRC emacs-lisp
+;; Startup hook from https://config.daviwil.com/emacs
+(add-hook 'emacs-startup-hook
+  (lambda ()
+    (message "*** Ready for business. Startup in %s with %d gcs."
+             (format "%.2f seconds"
+                     (float-time
+                      (time-subtract after-init-time before-init-time)))
+             gcs-done)))
+#+END_SRC
+
 ** Initialization
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
@@ -77,7 +89,12 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
         #'command-completion-default-include-p)
 
   ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t))
+  (setq enable-recursive-minibuffers t)
+
+  ;; Enable recentf mode
+  (recentf-mode 1)
+  (setq recentf-max-menu-items 100
+        recentf-max-saved-items 100))
 #+END_SRC
 
 *** Infrastructure
@@ -123,7 +140,8 @@ For easier key binding definitions.
     :prefix "SPC"
     :states '(normal visual))
   (my-leader-def
-   "ff" 'find-file))
+   "ff" 'find-file
+   "fr" 'recentf-open-files))
 #+END_SRC
 
 **** projectile.el
@@ -174,4 +192,46 @@ Basically, we want to select items orderless instead of matching completions fro
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
+#+END_SRC
+
+*** Languages
+**** python.el
+Is provided by emacs, so ensure nil
+#+BEGIN_SRC emacs-lisp
+(use-package python
+  :ensure nil
+  :config
+  ;; IPython REPL
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt"))
+#+END_SRC
+
+**** lsp-mode.el and lsp-ui.el
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook
+  (python-mode . lsp-deferred)
+  :config
+  (setq lsp-clients-python-command "pylsp"
+        lsp-enable-snippet nil)
+  (lsp-enable-which-key-integration t))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :hook
+  (lsp-mode . lsp-ui-mode)
+  :config
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-hover t
+        lsp-ui-sideline-diagnostics t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-doc-enable t
+        lsp-ui-doc-show-with-cursor t
+        lsp-ui-doc-show-with-mouse t))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package company-lsp
+  :commands company-lsp)
 #+END_SRC
