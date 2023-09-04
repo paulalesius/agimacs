@@ -173,6 +173,7 @@ For easier key binding definitions.
 **** projectile.el
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
+  :after general
   :config
   (projectile-mode +1)
   (my-leader-def
@@ -284,7 +285,8 @@ Basically, we want to select items orderless instead of matching completions fro
   (lsp-ui-sideline-enable t)
   (lsp-ui-sideline-show-hover t)
   (lsp-ui-sideline-diagnostics t)
-  (lsp-ui-sideline-show-code-actions t)
+  ;; I dont' know what code actions are
+  ;;(lsp-ui-sideline-show-code-actions t)
   :commands lsp-ui-mode
   :hook
   (lsp-mode . lsp-ui-mode))
@@ -326,14 +328,33 @@ Is provided by emacs, so ensure nil
 ;;(setq python-shell-interpreter "ipython"
 ;;      python-shell-interpreter-args "-i --simple-prompt"))
 #+END_SRC
+
+**** pyenv.el
+Needs to be configured this way for some reason, as setting :hook doesn't work
+#+BEGIN_SRC emacs-lisp
+(use-package pyvenv
+  :after (modeline python)
+  :init
+  (add-hook 'pyvenv-post-activate-hooks #'+modeline-update-env-in-all-windows-h)
+  (add-hook 'pyvenv-post-deactivate-hooks #'+modeline-clear-env-in-all-windows-h)
+  :config
+  (add-hook 'python-mode-local-vars-hook #'pyvenv-track-virtualenv)
+  (add-to-list 'global-mode-string
+               '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))))
+#+END_SRC
+
 **** poetry.el
+Needs to be configured this way for some reason as setting :hook or :after pyvenv
+doesn't activate poetry-tracking-mode
 #+BEGIN_SRC emacs-lisp
 (use-package poetry
   :after python
   :custom
   (poetry-tracking-strategy 'switch-buffer)
-  :hook
-  (python-mode . #'poetry-tracking-mode))
+  :init
+  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+;; For some reason, adding poetry-tracking-mode to a :hook, doesn't work, needs to be in init
+;; It also needs :after python as :after pyvenv doesn't activate the hook either
 #+END_SRC
 
 **** python-pytest.el

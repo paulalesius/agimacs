@@ -79,6 +79,7 @@
   )
 
 (use-package projectile
+  :after general
   :config
   (projectile-mode +1)
   (my-leader-def
@@ -157,7 +158,8 @@
   (lsp-ui-sideline-enable t)
   (lsp-ui-sideline-show-hover t)
   (lsp-ui-sideline-diagnostics t)
-  (lsp-ui-sideline-show-code-actions t)
+  ;; I dont' know what code actions are
+  ;;(lsp-ui-sideline-show-code-actions t)
   :commands lsp-ui-mode
   :hook
   (lsp-mode . lsp-ui-mode))
@@ -190,12 +192,26 @@
 ;;(setq python-shell-interpreter "ipython"
 ;;      python-shell-interpreter-args "-i --simple-prompt"))
 
+(use-package pyvenv
+  :after (modeline python)
+  ;;:hook
+  ;;(python-mode-local-vars . #'pyvenv-track-virtualenv)
+  :init
+  (add-hook 'pyvenv-post-activate-hooks #'+modeline-update-env-in-all-windows-h)
+  (add-hook 'pyvenv-post-deactivate-hooks #'+modeline-clear-env-in-all-windows-h)
+  :config
+  (add-hook 'python-mode-local-vars-hook #'pyvenv-track-virtualenv)
+  (add-to-list 'global-mode-string
+               '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))))
+
 (use-package poetry
   :after python
   :custom
   (poetry-tracking-strategy 'switch-buffer)
-  :hook
-  (python-mode . #'poetry-tracking-mode))
+  :init
+  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+;; For some reason, adding poetry-tracking-mode to a :hook, doesn't work, needs to be in init
+;; It also needs :after python as :after pyvenv doesn't activate the hook either
 
 (use-package python-pytest
   :after python
@@ -210,3 +226,15 @@
    "m t F" #'python-pytest-function
    "m t r" #'python-pytest-repeat
    "m t d" #'python-pytest-dispatch))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values '((project-watch-ignored-directories "dataset"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
