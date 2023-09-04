@@ -45,7 +45,7 @@
 (use-package evil-collection
   :custom
   (evil-collection-setup-minibuffer t)
-  :after evil
+  :after (evil magit)
   :config
   (evil-collection-init))
 
@@ -59,44 +59,32 @@
   (my-leader-def
    "ff" 'find-file
 
-    ;; flycheck
+   ;; flycheck
    "cn" 'flycheck-next-error
    "cp" 'flycheck-previous-error
    "cl" 'flycheck-list-errors
 
-    ;; help
+   ;; help
    "hk" 'describe-key
    "hm" 'describe-mode
    "hv" 'describe-variable
 
-    ;; buffer
+   ;; buffer
    "bd" 'kill-current-buffer
 
-    ;; projectile
-   "pp" 'projectile-switch-project)
+   ;; projectile
+   ;;"pp" 'projectile-switch-project
+   )
 
- (my-leader-def
-  :keymaps 'python-mode-map
-  "m" '(:ignore t :which-key "python")
-  "m s" '(:ignore t :which-key "REPL")
-  "m t" '(:ignore t :which-key "pytest")
-  ;; REPL
-  "m s r" '(python-shell-send-region :which-key "send region")
-  "m s b" '(python-shell-send-buffer :which-key "send buffer")
-  "m s f" '(python-shell-send-file :which-key "send file")
-  ;; Testing
-  "m t a" #'python-pytest
-  "m t f" #'python-pytest-file
-  "m t F" #'python-pytest-function
-  "m t r" #'python-pytest-repeat
-  "m t d" #'python-pytest-dispatch))
+  )
 
 (use-package projectile
   :config
   (projectile-mode +1)
-  :bind (:map projectile-mode-map
-              ("s-p" . projectile-command-map)
-              ("C-c p" . projectile-command-map)))
+  (my-leader-def
+   :keymaps 'projectile-mode-map
+   "p" '(:ignore t :which-key "projectile")
+   "p p" 'projectile-switch-project))
 
 (use-package doom-modeline
   :init
@@ -112,6 +100,14 @@
   :config
   (which-key-mode)
   (which-key-setup-minibuffer))
+
+(use-package magit
+  :commands magit-file-delete)
+
+(use-package magit-todos
+  :after magit
+  :custom
+  (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" "Allow TODO without colons TODO:"))
 
 (use-package vertico
   :init
@@ -178,7 +174,17 @@
   :config
   (global-flycheck-mode t))
 
-(use-package python)
+(use-package python
+  :after general
+  :config
+  (my-leader-def
+   :keymaps 'python-mode-map
+   "m" '(:ignore t :which-key "python")
+   "m s" '(:ignore t :which-key "REPL")
+   ;; REPL
+   "m s r" '(python-shell-send-region :which-key "send region")
+   "m s b" '(python-shell-send-buffer :which-key "send buffer")
+   "m s f" '(python-shell-send-file :which-key "send file")))
 ;;:config
 ;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
 ;;(setq python-shell-interpreter "ipython"
@@ -193,16 +199,14 @@
 
 (use-package python-pytest
   :after python
-  :commands python-pytest-dispatch)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(safe-local-variable-values '((project-watch-ignored-directories "dataset"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+  :commands python-pytest-dispatch
+  :config
+  (my-leader-def
+   :keymaps 'python-mode-map
+   "m t" '(:ignore t :which-key "pytest")
+   ;; Testing
+   "m t a" #'python-pytest
+   "m t f" #'python-pytest-file
+   "m t F" #'python-pytest-function
+   "m t r" #'python-pytest-repeat
+   "m t d" #'python-pytest-dispatch))

@@ -67,6 +67,8 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
 :END:
+Keys are mapped using general.el in the use-project for the respective module. So nearly all packages will depend on general.el.
+
 *** Platform
 **** use-package.el
 #+BEGIN_SRC emacs-lisp
@@ -125,11 +127,12 @@ This will install Doom Themes megapack, a collection of themes. And load the doo
   (evil-mode 1))
 #+END_SRC
 
+Depend on magit to configure evil for magit too
 #+BEGIN_SRC emacs-lisp
 (use-package evil-collection
   :custom
   (evil-collection-setup-minibuffer t)
-  :after evil
+  :after (evil magit)
   :config
   (evil-collection-init))
 #+END_SRC
@@ -147,37 +150,24 @@ For easier key binding definitions.
   (my-leader-def
    "ff" 'find-file
 
-    ;; flycheck
+   ;; flycheck
    "cn" 'flycheck-next-error
    "cp" 'flycheck-previous-error
    "cl" 'flycheck-list-errors
 
-    ;; help
+   ;; help
    "hk" 'describe-key
    "hm" 'describe-mode
    "hv" 'describe-variable
 
-    ;; buffer
+   ;; buffer
    "bd" 'kill-current-buffer
 
-    ;; projectile
-   "pp" 'projectile-switch-project)
+   ;; projectile
+   ;;"pp" 'projectile-switch-project
+   )
 
- (my-leader-def
-  :keymaps 'python-mode-map
-  "m" '(:ignore t :which-key "python")
-  "m s" '(:ignore t :which-key "REPL")
-  "m t" '(:ignore t :which-key "pytest")
-  ;; REPL
-  "m s r" '(python-shell-send-region :which-key "send region")
-  "m s b" '(python-shell-send-buffer :which-key "send buffer")
-  "m s f" '(python-shell-send-file :which-key "send file")
-  ;; Testing
-  "m t a" #'python-pytest
-  "m t f" #'python-pytest-file
-  "m t F" #'python-pytest-function
-  "m t r" #'python-pytest-repeat
-  "m t d" #'python-pytest-dispatch))
+  )
 #+END_SRC
 
 **** projectile.el
@@ -185,10 +175,17 @@ For easier key binding definitions.
 (use-package projectile
   :config
   (projectile-mode +1)
-  :bind (:map projectile-mode-map
-              ("s-p" . projectile-command-map)
-              ("C-c p" . projectile-command-map)))
+  (my-leader-def
+   :keymaps 'projectile-mode-map
+   "p" '(:ignore t :which-key "projectile")
+   "p p" 'projectile-switch-project))
 #+END_SRC
+Also has some sort of projectile-mode-map for full projectile menu
+(use-package projectile
+    :bind (:map projectile-mode-map
+            ("s-p" . projectile-command-map)
+            ("C-c p" . projectile-command-map))))
+
 
 **** doom-modeline.el
 Also make sure to load the modeline after projectile since it uses the projectile api.
@@ -211,6 +208,18 @@ Since we're n00bs, we need to see the key options sometimes.
   :config
   (which-key-mode)
   (which-key-setup-minibuffer))
+#+END_SRC
+
+**** magit.el and magit-todos.el
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :commands magit-file-delete)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package magit-todos
+  :after magit
+  :custom
+  (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" "Allow TODO without colons TODO:"))
 #+END_SRC
 
 *** Completions
@@ -301,7 +310,17 @@ Basically, we want to select items orderless instead of matching completions fro
 **** python.el
 Is provided by emacs, so ensure nil
 #+BEGIN_SRC emacs-lisp
-(use-package python)
+(use-package python
+  :after general
+  :config
+  (my-leader-def
+   :keymaps 'python-mode-map
+   "m" '(:ignore t :which-key "python")
+   "m s" '(:ignore t :which-key "REPL")
+   ;; REPL
+   "m s r" '(python-shell-send-region :which-key "send region")
+   "m s b" '(python-shell-send-buffer :which-key "send buffer")
+   "m s f" '(python-shell-send-file :which-key "send file")))
 ;;:config
 ;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
 ;;(setq python-shell-interpreter "ipython"
@@ -318,9 +337,18 @@ Is provided by emacs, so ensure nil
 #+END_SRC
 
 **** python-pytest.el
-Configure the key bindings in general.el
 #+BEGIN_SRC emacs-lisp
 (use-package python-pytest
   :after python
-  :commands python-pytest-dispatch)
+  :commands python-pytest-dispatch
+  :config
+  (my-leader-def
+   :keymaps 'python-mode-map
+   "m t" '(:ignore t :which-key "pytest")
+   ;; Testing
+   "m t a" #'python-pytest
+   "m t f" #'python-pytest-file
+   "m t F" #'python-pytest-function
+   "m t r" #'python-pytest-repeat
+   "m t d" #'python-pytest-dispatch))
 #+END_SRC
