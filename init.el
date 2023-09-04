@@ -58,7 +58,6 @@
 
   (my-leader-def
    "ff" 'find-file
-   "fr" 'recentf-open-files
 
     ;; flycheck
    "cn" 'flycheck-next-error
@@ -128,7 +127,8 @@
   :after general
   :config
   (my-leader-def
-   "b b" #'consult-buffer)
+   "b b" #'consult-buffer
+   "f r" #'consult-recent-file)
   ;; Re-define standard keys
   (general-define-key
    :prefix "C-c"
@@ -194,3 +194,15 @@
 (use-package python-pytest
   :after python
   :commands python-pytest-dispatch)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values '((project-watch-ignored-directories "dataset"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

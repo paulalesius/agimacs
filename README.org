@@ -146,7 +146,6 @@ For easier key binding definitions.
 
   (my-leader-def
    "ff" 'find-file
-   "fr" 'recentf-open-files
 
     ;; flycheck
    "cn" 'flycheck-next-error
@@ -236,7 +235,8 @@ Basically, we want to select items orderless instead of matching completions fro
   :after general
   :config
   (my-leader-def
-   "b b" #'consult-buffer)
+   "b b" #'consult-buffer
+   "f r" #'consult-recent-file)
   ;; Re-define standard keys
   (general-define-key
    :prefix "C-c"
