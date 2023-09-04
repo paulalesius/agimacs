@@ -1,7 +1,4 @@
 (setq package-enable-at-startup nil)
-(setq hello2 t)
-
-(setq comp-deferred-compilation t)
 
 (setq old-gc-cons-threshold gc-cons-threshold)
 (setq gc-cons-threshold most-positive-fixnum)

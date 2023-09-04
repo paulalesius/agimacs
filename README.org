@@ -7,16 +7,9 @@
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/early-init.el
 :END:
 
-*** To prevent package.el from loading packages prior to their init-file loading (with straight.el? What init file?)
+To prevent package.el from loading packages prior to their init-file loading (with straight.el? What init file?)
 #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil)
-(setq hello2 t)
-#+END_SRC
-
-*** Defer compilation of LISP files
-When using gccemacs
-#+BEGIN_SRC emacs-lisp
-(setq comp-deferred-compilation t)
 #+END_SRC
 
 *** Garbage collection during boot
