@@ -143,6 +143,7 @@ For easier key binding definitions.
   (general-create-definer my-leader-def
     :prefix "SPC"
     :states '(normal visual))
+
   (my-leader-def
    "ff" 'find-file
    "fr" 'recentf-open-files
@@ -229,6 +230,22 @@ Basically, we want to select items orderless instead of matching completions fro
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 #+END_SRC
+**** consult.el and consult-flycheck.el
+#+BEGIN_SRC emacs-lisp
+(use-package consult
+  :after general
+  :config
+  (my-leader-def
+   "b b" #'consult-buffer)
+  ;; Re-define standard keys
+  (general-define-key
+   :prefix "C-c"
+   "b" #'consult-buffer))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package consult-flycheck
+  :after (consult flycheck))
+#+END_SRC
 
 *** Languages Common
 **** lsp-mode.el and lsp-ui.el
@@ -293,12 +310,17 @@ Is provided by emacs, so ensure nil
 **** poetry.el
 #+BEGIN_SRC emacs-lisp
 (use-package poetry
-  :after python)
+  :after python
+  :custom
+  (poetry-tracking-strategy 'switch-buffer)
+  :hook
+  (python-mode . #'poetry-tracking-mode))
 #+END_SRC
 
 **** python-pytest.el
 Configure the key bindings in general.el
 #+BEGIN_SRC emacs-lisp
 (use-package python-pytest
+  :after python
   :commands python-pytest-dispatch)
 #+END_SRC

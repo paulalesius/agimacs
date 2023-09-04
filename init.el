@@ -55,6 +55,7 @@
   (general-create-definer my-leader-def
     :prefix "SPC"
     :states '(normal visual))
+
   (my-leader-def
    "ff" 'find-file
    "fr" 'recentf-open-files
@@ -123,6 +124,19 @@
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 
+(use-package consult
+  :after general
+  :config
+  (my-leader-def
+   "b b" #'consult-buffer)
+  ;; Re-define standard keys
+  (general-define-key
+   :prefix "C-c"
+   "b" #'consult-buffer))
+
+(use-package consult-flycheck
+  :after (consult flycheck))
+
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :hook
@@ -171,7 +185,12 @@
 ;;      python-shell-interpreter-args "-i --simple-prompt"))
 
 (use-package poetry
-  :after python)
+  :after python
+  :custom
+  (poetry-tracking-strategy 'switch-buffer)
+  :hook
+  (python-mode . #'poetry-tracking-mode))
 
 (use-package python-pytest
+  :after python
   :commands python-pytest-dispatch)
