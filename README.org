@@ -375,19 +375,24 @@ doesn't activate poetry-tracking-mode
 *** Org
 **** org.el
     #+BEGIN_SRC emacs-lisp
-(use-package org)
-    #+END_SRC
-**** evil-ord.el
-#+BEGIN_SRC emacs-lisp
-(use-package evil-org
-  :hook (org-mode . evil-org-mode)
-  :hook (org-capture-mode . evil-insert-state)
-  :hook (doom-docs-org-mode . evil-org-mode)
+(use-package org
   :custom
-  (org-enforce-todo-dependencies t)
   (org-hide-leading-stars t)
   (org-hide-emphasis-markers t)
   (org-startup-indented t)
+  (org-enforce-todo-dependencies t)
+  ;; Defaults to showeverything, but that doesn't respect `org-hide-block-startup'
+  ;; (#+startup: hideblocks)`, archive trees, hidden drawers, or VISIBILITY properties. nil
+  ;; is equivalent, but respects these settings.
+  (org-startup-folded nil))
+    #+END_SRC
+**** evil-org.el
+#+BEGIN_SRC emacs-lisp
+(use-package evil-org
+  :after (evil org)
+  :hook (org-mode . evil-org-mode)
+  :hook (org-capture-mode . evil-insert-state)
+  :hook (doom-docs-org-mode . evil-org-mode)
   :config
   (add-hook 'evil-org-mode-hook #'evil-normalize-keymaps)
   (evil-org-set-key-theme))
