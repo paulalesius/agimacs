@@ -194,8 +194,6 @@
 
 (use-package pyvenv
   :after (modeline python)
-  ;;:hook
-  ;;(python-mode-local-vars . #'pyvenv-track-virtualenv)
   :init
   (add-hook 'pyvenv-post-activate-hooks #'+modeline-update-env-in-all-windows-h)
   (add-hook 'pyvenv-post-deactivate-hooks #'+modeline-clear-env-in-all-windows-h)
@@ -210,8 +208,6 @@
   (poetry-tracking-strategy 'switch-buffer)
   :init
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
-;; For some reason, adding poetry-tracking-mode to a :hook, doesn't work, needs to be in init
-;; It also needs :after python as :after pyvenv doesn't activate the hook either
 
 (use-package python-pytest
   :after python
@@ -226,6 +222,25 @@
    "m t F" #'python-pytest-function
    "m t r" #'python-pytest-repeat
    "m t d" #'python-pytest-dispatch))
+
+(use-package org)
+
+(use-package evil-org
+  :hook (org-mode . evil-org-mode)
+  :hook (org-capture-mode . evil-insert-state)
+  :hook (doom-docs-org-mode . evil-org-mode)
+  :custom
+  (org-enforce-todo-dependencies t)
+  (org-hide-leading-stars t)
+  (org-hide-emphasis-markers t)
+  (org-startup-indented t)
+  :config
+  (add-hook 'evil-org-mode-hook #'evil-normalize-keymaps)
+  (evil-org-set-key-theme))
+
+(use-package org-bullets
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

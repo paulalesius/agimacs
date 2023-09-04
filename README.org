@@ -353,8 +353,6 @@ doesn't activate poetry-tracking-mode
   (poetry-tracking-strategy 'switch-buffer)
   :init
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
-;; For some reason, adding poetry-tracking-mode to a :hook, doesn't work, needs to be in init
-;; It also needs :after python as :after pyvenv doesn't activate the hook either
 #+END_SRC
 
 **** python-pytest.el
@@ -373,3 +371,40 @@ doesn't activate poetry-tracking-mode
    "m t r" #'python-pytest-repeat
    "m t d" #'python-pytest-dispatch))
 #+END_SRC
+
+*** Org
+**** org.el
+    #+BEGIN_SRC emacs-lisp
+(use-package org)
+    #+END_SRC
+**** evil-ord.el
+#+BEGIN_SRC emacs-lisp
+(use-package evil-org
+  :hook (org-mode . evil-org-mode)
+  :hook (org-capture-mode . evil-insert-state)
+  :hook (doom-docs-org-mode . evil-org-mode)
+  :custom
+  (org-enforce-todo-dependencies t)
+  (org-hide-leading-stars t)
+  (org-hide-emphasis-markers t)
+  (org-startup-indented t)
+  :config
+  (add-hook 'evil-org-mode-hook #'evil-normalize-keymaps)
+  (evil-org-set-key-theme))
+#+END_SRC
+**** org-bullets.el
+Nice bullet icons for headlines and such, supports unicode fallback
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+
+# +END_SRC
+# **** evil-org-agenda.el
+# #+BEGIN_SRC emacs-lisp
+# (use-package evil-org-agenda
+#   :hook (org-agenda-mode . evil-org-agenda-mode)
+#   :config
+#   (evil-org-agenda-set-keys))
+# +END_SRC
