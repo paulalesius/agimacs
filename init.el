@@ -73,7 +73,23 @@
    "bd" 'kill-current-buffer
 
     ;; projectile
-   "pp" 'projectile-switch-project))
+   "pp" 'projectile-switch-project)
+
+ (my-leader-def
+  :keymaps 'python-mode-map
+  "m" '(:ignore t :which-key "python")
+  "m s" '(:ignore t :which-key "REPL")
+  "m t" '(:ignore t :which-key "pytest")
+  ;; REPL
+  "m s r" '(python-shell-send-region :which-key "send region")
+  "m s b" '(python-shell-send-buffer :which-key "send buffer")
+  "m s f" '(python-shell-send-file :which-key "send file")
+  ;; Testing
+  "m t a" #'python-pytest
+  "m t f" #'python-pytest-file
+  "m t F" #'python-pytest-function
+  "m t r" #'python-pytest-repeat
+  "m t d" #'python-pytest-dispatch))
 
 (use-package projectile
   :config
@@ -148,9 +164,14 @@
   :config
   (global-flycheck-mode t))
 
-(use-package python
-  :ensure nil)
-  ;;:config
-  ;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
-  ;;(setq python-shell-interpreter "ipython"
-  ;;      python-shell-interpreter-args "-i --simple-prompt"))
+(use-package python)
+;;:config
+;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
+;;(setq python-shell-interpreter "ipython"
+;;      python-shell-interpreter-args "-i --simple-prompt"))
+
+(use-package poetry
+  :after python)
+
+(use-package python-pytest
+  :commands python-pytest-dispatch)
