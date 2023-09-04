@@ -155,7 +155,13 @@ For easier key binding definitions.
     ;; help
    "hk" 'describe-key
    "hm" 'describe-mode
-   "hv" 'describe-variable))
+   "hv" 'describe-variable
+
+    ;; buffer
+   "bd" 'kill-current-buffer
+
+    ;; projectile
+   "pp" 'projectile-switch-project))
 #+END_SRC
 
 **** projectile.el
@@ -224,17 +230,22 @@ Basically, we want to select items orderless instead of matching completions fro
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-ui
+  :custom
+  ;; lsp-ui-doc
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-doc-show-with-mouse nil)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-header t)
+  (lsp-ui-doc-position 'at-point "Doesn't seem to work either. Childframes or WebKit frames require GUI widgets.")
+  ;; lsp-ui-sideline
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-diagnostics t)
+  (lsp-ui-sideline-show-code-actions t)
   :commands lsp-ui-mode
   :hook
-  (lsp-mode . lsp-ui-mode)
-  :init
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-hover t
-        lsp-ui-sideline-diagnostics t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-doc-enable t
-        lsp-ui-doc-show-with-cursor t
-        lsp-ui-doc-show-with-mouse t))
+  (lsp-mode . lsp-ui-mode))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package company-lsp

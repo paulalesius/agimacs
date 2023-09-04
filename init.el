@@ -67,7 +67,13 @@
     ;; help
    "hk" 'describe-key
    "hm" 'describe-mode
-   "hv" 'describe-variable))
+   "hv" 'describe-variable
+
+    ;; buffer
+   "bd" 'kill-current-buffer
+
+    ;; projectile
+   "pp" 'projectile-switch-project))
 
 (use-package projectile
   :config
@@ -113,17 +119,22 @@
   (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
+  :custom
+  ;; lsp-ui-doc
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-doc-show-with-mouse nil)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-header t)
+  (lsp-ui-doc-position 'at-point "Doesn't seem to work either. Childframes or WebKit frames require GUI widgets.")
+  ;; lsp-ui-sideline
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-diagnostics t)
+  (lsp-ui-sideline-show-code-actions t)
   :commands lsp-ui-mode
   :hook
-  (lsp-mode . lsp-ui-mode)
-  :init
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-hover t
-        lsp-ui-sideline-diagnostics t
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-doc-enable t
-        lsp-ui-doc-show-with-cursor t
-        lsp-ui-doc-show-with-mouse t))
+  (lsp-mode . lsp-ui-mode))
 
 (use-package company-lsp
   :commands company-lsp)
@@ -143,17 +154,3 @@
   ;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
   ;;(setq python-shell-interpreter "ipython"
   ;;      python-shell-interpreter-args "-i --simple-prompt"))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(safe-local-variable-values
-   '((projectile-globally-ignored-directories "dataset")
-     (project-watch-ignored-directories "dataset"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
