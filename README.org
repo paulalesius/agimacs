@@ -5,6 +5,9 @@
 I come from Doom Emacs but it becomes very hard to trace issues when there are so many packages and opinionated configurations changing the default behaviors of packages, and I'm not sure what has changed from the defaults using distributions such as Doom. So I decided to write my own configuration from scratch, based on Doom, for instance using Doom Themes and Doom Modeline, which are very nice overall.
 
 This file using "org-tangle" metadata, so pressing C-c C-v C-t will generate two files, early-init.el, and init.el, which are Emacs initialization files. These two files have two separate chapters in this README.org, Early Initialization and Initialization respectively.
+
+- Package manager: use-package.el backed by straight.el
+- Key bindings: evil.el configured with general.el
 ** Early Initialization (early-init.el)
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/early-init.el
@@ -138,32 +141,26 @@ For easier key binding definitions.
 #+BEGIN_SRC emacs-lisp
 (use-package general
   :after evil
-  :config
-  (general-create-definer my-leader-def
-    :prefix "SPC"
-    :states '(normal visual))
+             :config
+             (general-create-definer my-leader-def
+               :prefix "SPC"
+               :states '(normal visual))
 
-  (my-leader-def
-   "ff" 'find-file
+             (my-leader-def
+              "ff" 'find-file
 
-   ;; flycheck
-   "cn" 'flycheck-next-error
-   "cp" 'flycheck-previous-error
-   "cl" 'flycheck-list-errors
+              ;; flycheck
+              "cn" 'flycheck-next-error
+              "cp" 'flycheck-previous-error
+              "cl" 'flycheck-list-errors
 
-   ;; help
-   "hk" 'describe-key
-   "hm" 'describe-mode
-   "hv" 'describe-variable
+              ;; help
+              ;;"hk" 'describe-key
+              ;;"hm" 'describe-mode
+              ;;"hv" 'describe-variable
 
-   ;; buffer
-   "bd" 'kill-current-buffer
-
-   ;; projectile
-   ;;"pp" 'projectile-switch-project
-   )
-
-  )
+              ;; buffer
+              "bd" 'kill-current-buffer))
 #+END_SRC
 
 **** projectile.el
@@ -243,9 +240,9 @@ Basically, we want to select items orderless instead of matching completions fro
   (my-leader-def
    "b b" #'consult-buffer
    "f r" #'consult-recent-file)
-  ;; Re-define standard keys
+  ;; Re-define keys
   (general-define-key
-   :prefix "C-c"
+   :prefix "C-x"
    "b" #'consult-buffer))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
@@ -368,7 +365,7 @@ doesn't activate poetry-tracking-mode
    "m t d" #'python-pytest-dispatch))
 #+END_SRC
 
-*** Org
+*** Editor
 **** org.el
     #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -409,3 +406,77 @@ Nice bullet icons for headlines and such, supports unicode fallback
 #   :config
 #   (evil-org-agenda-set-keys))
 # +END_SRC
+
+**** helpful.el
+More helpful help
+#+BEGIN_SRC emacs-lisp
+  (use-package helpful
+    :after general
+      :config
+       ;; Declare 
+      (my-leader-def
+        "h" '(:ignore t :which-key "helpful")
+        "h k" '(helpful-key :which-key "describe key")
+        "h m" '(describe-mode :which-key "describe mode")
+        "h v" '(helpful-variable :which-key "describe variable")
+        ;; describe-function includes both macros and functions, so describe callable is a replacement that includes both helpful-callable and helpful-macro
+        "h f" '(helpful-callable :which-key "describe callable")
+        "h x" '(helpful-command :which-key "describe command")))
+#+END_SRC
+
+**** format-all.el
+TODO: doesn't work
+
+Copied format buffer functions form Doom Emacs
+File: .emacs.doom/modules/editor/format/autoload/format.el 
+#+BEGIN_SRC emacs-lisp
+    (use-package format-all
+  :commands +format/buffer
+    :config
+
+      (defun +format--org-region (beg end)
+      "Reformat the region within BEG and END.
+      If nil, BEG and/or END will default to the boundaries of the src block at point."
+          (let ((element (org-element-at-point)))
+                 (save-excursion
+         (let* ((block-beg (save-excursion
+                                  (goto-char (org-babel-where-is-src-block-head element))
+                                  (line-beginning-position 2)))
+                     (block-end (save-excursion
+                                  (goto-char (org-element-property :end element))
+                                  (skip-chars-backward " \t\n")
+                                  (line-beginning-position)))
+                     (beg (if beg (max beg block-beg) block-beg))
+                     (end (if end (min end block-end) block-end))
+                     (lang (org-element-property :language element))
+                     (major-mode (org-src-get-lang-mode lang)))
+                (if (eq major-mode 'org-mode)
+                    (user-error "Cannot reformat an org src block in org-mode")
+                  (+format/region beg end))))))
+
+        (defun +format--buffer ()
+          (if (and (eq major-mode 'org-mode)
+                   (org-in-src-block-p t))
+              (+format--org-region (point-min) (point-max))
+            (if (called-interactively-p 'any)
+                (format-all-buffer)
+              (ignore-errors (format-all-buffer))))) 
+        (defun +format/buffer()
+         "Reformat the current buffer using LSP or `format-all-buffer'."
+         (interactive)
+         (+format--buffer))
+    (defun +format/region (beg end)
+      "Runs the active formatter on the lines within BEG and END.
+
+    WARNING: this may not work everywhere. It will throw errors if the region
+    contains a syntax error in isolation. It is mostly useful for formatting
+    snippets or single lines."
+    (interactive "rP")
+    (let ((+format-region-p t))
+    (save-restriction
+    (narrow-to-region beg end)
+    (+format--buffer))))
+  )
+
+#+END_SRC
+
