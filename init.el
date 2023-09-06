@@ -243,66 +243,25 @@
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 (use-package helpful
-      :after general
-        :config
-         ;; Declare 
-        (my-leader-def
-          "h" '(:ignore t :which-key "helpful")
-          "h k" '(helpful-key :which-key "describe key")
-          "h m" '(describe-mode :which-key "describe mode")
-          "h v" '(helpful-variable :which-key "describe variable")
-          ;; describe-function includes both macros and functions, so describe callable is a replacement that includes both helpful-callable and helpful-macro
-          "h f" '(helpful-callable :which-key "describe callable")
-          "h x" '(helpful-command :which-key "describe command"))
- (general-define-key
+  :after general
+  :config
+  ;; Declare
+  (my-leader-def
+    "h" '(:ignore t :which-key "helpful")
+    "h k" '(helpful-key :which-key "describe key")
+    "h m" '(describe-mode :which-key "describe mode")
+    "h v" '(helpful-variable :which-key "describe variable")
+    ;; describe-function includes both macros and functions, so
+    ;; describe callable is a replacement that includes both
+    ;; helpful-callable and helpful-macro
+    "h f" '(helpful-callable :which-key "describe callable")
+    "h x" '(helpful-command :which-key "describe command"))
+  (general-define-key
    :prefix "C-c"
    "C-d" #'helpful-at-point)
-)
+  (general-define-key
+   :prefix "C-h"
+   "F" #'helpful-function)
+  )
 
-(use-package format-all
-:commands +format/buffer
-  :config
-
-    (defun +format--org-region (beg end)
-    "Reformat the region within BEG and END.
-    If nil, BEG and/or END will default to the boundaries of the src block at point."
-        (let ((element (org-element-at-point)))
-               (save-excursion
-       (let* ((block-beg (save-excursion
-                                (goto-char (org-babel-where-is-src-block-head element))
-                                (line-beginning-position 2)))
-                   (block-end (save-excursion
-                                (goto-char (org-element-property :end element))
-                                (skip-chars-backward " \t\n")
-                                (line-beginning-position)))
-                   (beg (if beg (max beg block-beg) block-beg))
-                   (end (if end (min end block-end) block-end))
-                   (lang (org-element-property :language element))
-                   (major-mode (org-src-get-lang-mode lang)))
-              (if (eq major-mode 'org-mode)
-                  (user-error "Cannot reformat an org src block in org-mode")
-                (+format/region beg end))))))
-
-      (defun +format--buffer ()
-        (if (and (eq major-mode 'org-mode)
-                 (org-in-src-block-p t))
-            (+format--org-region (point-min) (point-max))
-          (if (called-interactively-p 'any)
-              (format-all-buffer)
-            (ignore-errors (format-all-buffer))))) 
-      (defun +format/buffer()
-       "Reformat the current buffer using LSP or `format-all-buffer'."
-       (interactive)
-       (+format--buffer))
-  (defun +format/region (beg end)
-    "Runs the active formatter on the lines within BEG and END.
-
-  WARNING: this may not work everywhere. It will throw errors if the region
-  contains a syntax error in isolation. It is mostly useful for formatting
-  snippets or single lines."
-  (interactive "rP")
-  (let ((+format-region-p t))
-  (save-restriction
-  (narrow-to-region beg end)
-  (+format--buffer))))
-)
+(straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
