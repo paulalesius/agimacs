@@ -57,7 +57,7 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
 ;; Startup hook from https://config.daviwil.com/emacs
 (add-hook 'emacs-startup-hook
   (lambda ()
-    (message "*** Ready for business. Startup in %s with %d gcs."
+    (message "Ready for business. Startup in %s with %d gcs."
              (format "%.2f seconds"
                      (float-time
                       (time-subtract after-init-time before-init-time)))
@@ -367,7 +367,7 @@ doesn't activate poetry-tracking-mode
    "m t d" #'python-pytest-dispatch))
 #+END_SRC
 
-*** Editor
+*** Editors
 **** org.el
     #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -444,4 +444,14 @@ work on this, so you press "C-c '" again in that buffer to go back to org mode w
 @TODO: Emulate what Doom does at some point.
 #+BEGIN_SRC emacs-lisp
 (straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
+#+END_SRC
+*** Other
+**** dashboard.el
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    ;;:init
+    ;;(setq dashboard-startup-banner '((expand-file-name "1.txt" user-emacs-directory)))
+    ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
+    :config
+    (dashboard-setup-startup-hook))
 #+END_SRC

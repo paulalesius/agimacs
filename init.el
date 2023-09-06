@@ -264,3 +264,10 @@
   )
 
 (straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
+
+(use-package dashboard
+  ;;:init
+  ;;(setq dashboard-startup-banner '((expand-file-name "1.txt" user-emacs-directory)))
+  ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
+  :config
+  (dashboard-setup-startup-hook))
