@@ -234,16 +234,17 @@ Basically, we want to select items orderless instead of matching completions fro
 #+END_SRC
 **** consult.el and consult-flycheck.el
 #+BEGIN_SRC emacs-lisp
-(use-package consult
-  :after general
-  :config
-  (my-leader-def
-   "b b" #'consult-buffer
-   "f r" #'consult-recent-file)
-  ;; Re-define keys
-  (general-define-key
-   :prefix "C-x"
-   "b" #'consult-buffer))
+  (use-package consult
+    :after general
+    :config
+    (my-leader-def
+     "b b" #'consult-buffer
+     "f r" #'consult-recent-file)
+    ;; Re-define keys
+    (general-define-key
+     :prefix "C-x"
+     "b" #'consult-buffer)
+  )
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package consult-flycheck
@@ -410,18 +411,22 @@ Nice bullet icons for headlines and such, supports unicode fallback
 **** helpful.el
 More helpful help
 #+BEGIN_SRC emacs-lisp
-  (use-package helpful
-    :after general
-      :config
-       ;; Declare 
-      (my-leader-def
-        "h" '(:ignore t :which-key "helpful")
-        "h k" '(helpful-key :which-key "describe key")
-        "h m" '(describe-mode :which-key "describe mode")
-        "h v" '(helpful-variable :which-key "describe variable")
-        ;; describe-function includes both macros and functions, so describe callable is a replacement that includes both helpful-callable and helpful-macro
-        "h f" '(helpful-callable :which-key "describe callable")
-        "h x" '(helpful-command :which-key "describe command")))
+      (use-package helpful
+        :after general
+          :config
+           ;; Declare 
+          (my-leader-def
+            "h" '(:ignore t :which-key "helpful")
+            "h k" '(helpful-key :which-key "describe key")
+            "h m" '(describe-mode :which-key "describe mode")
+            "h v" '(helpful-variable :which-key "describe variable")
+            ;; describe-function includes both macros and functions, so describe callable is a replacement that includes both helpful-callable and helpful-macro
+            "h f" '(helpful-callable :which-key "describe callable")
+            "h x" '(helpful-command :which-key "describe command"))
+   (general-define-key
+     :prefix "C-c"
+     "C-d" #'helpful-at-point)
+  )
 #+END_SRC
 
 **** format-all.el

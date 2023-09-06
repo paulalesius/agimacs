@@ -50,29 +50,27 @@
   (evil-collection-init))
 
 (use-package general
-        :after evil
-        :config
-        (general-create-definer my-leader-def
-          :prefix "SPC"
-          :states '(normal visual))
+  :after evil
+             :config
+             (general-create-definer my-leader-def
+               :prefix "SPC"
+               :states '(normal visual))
 
-        (my-leader-def
-         "ff" 'find-file
+             (my-leader-def
+              "ff" 'find-file
 
-         ;; flycheck
-         "cn" 'flycheck-next-error
-         "cp" 'flycheck-previous-error
-         "cl" 'flycheck-list-errors
+              ;; flycheck
+              "cn" 'flycheck-next-error
+              "cp" 'flycheck-previous-error
+              "cl" 'flycheck-list-errors
 
-         ;; help
-         ;;"hk" 'describe-key
-         ;;"hm" 'describe-mode
-         ;;"hv" 'describe-variable
+              ;; help
+              ;;"hk" 'describe-key
+              ;;"hm" 'describe-mode
+              ;;"hv" 'describe-variable
 
-         ;; buffer
-         "bd" 'kill-current-buffer)
-
-)
+              ;; buffer
+              "bd" 'kill-current-buffer))
 
 (use-package projectile
   :after general
@@ -125,7 +123,8 @@
   ;; Re-define keys
   (general-define-key
    :prefix "C-x"
-   "b" #'consult-buffer))
+   "b" #'consult-buffer)
+)
 
 (use-package consult-flycheck
   :after (consult flycheck))
@@ -244,17 +243,21 @@
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 (use-package helpful
-  :after general
-    :config
-     ;; Declare 
-    (my-leader-def
-      "h" '(:ignore t :which-key "helpful")
-      "h k" '(helpful-key :which-key "describe key")
-      "h m" '(describe-mode :which-key "describe mode")
-      "h v" '(helpful-variable :which-key "describe variable")
-      ;; describe-function includes both macros and functions, so describe callable is a replacement that includes both helpful-callable and helpful-macro
-      "h f" '(helpful-callable :which-key "describe callable")
-      "h x" '(helpful-command :which-key "describe command")))
+      :after general
+        :config
+         ;; Declare 
+        (my-leader-def
+          "h" '(:ignore t :which-key "helpful")
+          "h k" '(helpful-key :which-key "describe key")
+          "h m" '(describe-mode :which-key "describe mode")
+          "h v" '(helpful-variable :which-key "describe variable")
+          ;; describe-function includes both macros and functions, so describe callable is a replacement that includes both helpful-callable and helpful-macro
+          "h f" '(helpful-callable :which-key "describe callable")
+          "h x" '(helpful-command :which-key "describe command"))
+ (general-define-key
+   :prefix "C-c"
+   "C-d" #'helpful-at-point)
+)
 
 (use-package format-all
 :commands +format/buffer
