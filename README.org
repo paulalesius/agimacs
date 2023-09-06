@@ -1,7 +1,7 @@
 #+PROPERTY: header-args :tangle no
 #+PROPERTY: header-args:emacs-lisp+ :comments link
 
-* Paul's Literate Emacs Config
+* Paul's Emacs
 I come from Doom Emacs but it becomes very hard to trace issues when there are so many packages and opinionated configurations changing the default behaviors of packages, and I'm not sure what has changed from the defaults using distributions such as Doom. So I decided to write my own configuration from scratch, based on Doom, for instance using Doom Themes and Doom Modeline, which are very nice overall.
 
 This file using "org-tangle" metadata, so pressing C-c C-v C-t will generate two files, early-init.el, and init.el, which are Emacs initialization files. These two files have two separate chapters in this README.org, Early Initialization and Initialization respectively.
