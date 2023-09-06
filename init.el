@@ -270,4 +270,7 @@
   ;;(setq dashboard-startup-banner '((expand-file-name "1.txt" user-emacs-directory)))
   ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
   :config
+  ;; Set initial buffer when creating new frames.
+  (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+
   (dashboard-setup-startup-hook))
