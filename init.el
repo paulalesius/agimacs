@@ -203,19 +203,19 @@
   :init
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
 
-(use-package python-pytest
+(use-package pytest
   :after python
-  :commands python-pytest-dispatch
   :config
   (my-leader-def
-   :keymaps 'python-mode-map
-   "m t" '(:ignore t :which-key "pytest")
-   ;; Testing
-   "m t a" #'python-pytest
-   "m t f" #'python-pytest-file
-   "m t F" #'python-pytest-function
-   "m t r" #'python-pytest-repeat
-   "m t d" #'python-pytest-dispatch))
+    :keymaps 'python-mode-map
+    "m t" '(:ignore t :which-key "pytest")
+    ;; Testing
+    "m t a" #'pytest-all
+    "m t m" #'pytest-module
+    "m t c" #'pytest-one
+    "m t r" #'pytest-again
+    "m t d" #'pytest-directory
+    ))
 
 (use-package org
   :custom

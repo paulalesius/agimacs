@@ -350,21 +350,21 @@ doesn't activate poetry-tracking-mode
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
 #+END_SRC
 
-**** python-pytest.el
+**** pytest.el
 #+BEGIN_SRC emacs-lisp
-(use-package python-pytest
-  :after python
-  :commands python-pytest-dispatch
-  :config
-  (my-leader-def
-   :keymaps 'python-mode-map
-   "m t" '(:ignore t :which-key "pytest")
-   ;; Testing
-   "m t a" #'python-pytest
-   "m t f" #'python-pytest-file
-   "m t F" #'python-pytest-function
-   "m t r" #'python-pytest-repeat
-   "m t d" #'python-pytest-dispatch))
+  (use-package pytest
+    :after python
+    :config
+    (my-leader-def
+      :keymaps 'python-mode-map
+      "m t" '(:ignore t :which-key "pytest")
+      ;; Testing
+      "m t a" #'pytest-all
+      "m t m" #'pytest-module
+      "m t c" #'pytest-one
+      "m t r" #'pytest-again
+      "m t d" #'pytest-directory
+      ))
 #+END_SRC
 
 *** Editors
@@ -458,3 +458,15 @@ work on this, so you press "C-c '" again in that buffer to go back to org mode w
 
     (dashboard-setup-startup-hook))
 #+END_SRC
+
+# **** semantic-refactor.el
+# #+BEGIN_SRC emacs-lisp
+#   (use-package semantic-refactor
+#   		      :after general
+#   		      :config
+#   		      (require 'srefactor-lisp)
+#   		      (my-leader-def
+#   			:infix "c"
+#   			:keymaps 'scheme-mode-map
+#   			"b" 'srefactor-lisp-format-buffer))
+# #+END_SRC
