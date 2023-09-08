@@ -271,6 +271,6 @@
   ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
   :config
   ;; Set initial buffer when creating new frames.
-  (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
-
+  ;; Note: Disabled, creates dashboard buffer when using emacsclient
+  ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
