@@ -336,7 +336,7 @@
   					 (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
   					 (mapconcat 'number-to-string current-section-numbers ".")))))
   		(when (<= level max-level)
-  		  (push (format "- %s [[*%s][%s]]" section-number headline headline) headlines))))
+  		  (push (format "%s [[*%s][%s]]" section-number headline headline) headlines))))
   	    (when toc-end-pos
   	      (goto-char toc-begin-pos)
   	      (delete-region toc-begin-pos toc-end-pos)

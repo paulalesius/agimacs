@@ -2,19 +2,19 @@
 #+PROPERTY: header-args:emacs-lisp+ :comments link
 
 #+BEGIN toc headlines 3
-- 1 [[*Paul's Emacs][Paul's Emacs]]
-- 1.1 [[*Early Initialization (early-init.el)][Early Initialization (early-init.el)]]
-- 1.1.1 [[*Boot gc][Boot gc]]
-- 1.1.2 [[*straight.el][straight.el]]
-- 1.1.3 [[*use-package.el][use-package.el]]
-- 1.2 [[*Initialization (init.el)][Initialization (init.el)]]
-- 1.2.2 [[*Infrastructure][Infrastructure]]
-- 1.2.3 [[*Completions][Completions]]
-- 1.2.4 [[*Languages Common][Languages Common]]
-- 1.2.5 [[*Python][Python]]
-- 1.2.6 [[*Rust][Rust]]
-- 1.2.7 [[*Org Mode][Org Mode]]
-- 2 [[*On save (README.org)][On save (README.org)]]
+1 [[*Paul's Emacs][Paul's Emacs]]
+1.1 [[*Early Initialization (early-init.el)][Early Initialization (early-init.el)]]
+1.1.1 [[*Boot gc][Boot gc]]
+1.1.2 [[*straight.el][straight.el]]
+1.1.3 [[*use-package.el][use-package.el]]
+1.2 [[*Initialization (init.el)][Initialization (init.el)]]
+1.2.2 [[*Infrastructure][Infrastructure]]
+1.2.3 [[*Completions][Completions]]
+1.2.4 [[*Languages Common][Languages Common]]
+1.2.5 [[*Python][Python]]
+1.2.6 [[*Rust][Rust]]
+1.2.7 [[*Org Mode][Org Mode]]
+2 [[*On save (README.org)][On save (README.org)]]
 #+END toc
 
 * Paul's Emacs
@@ -562,7 +562,7 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
     					 (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
     					 (mapconcat 'number-to-string current-section-numbers ".")))))
     		(when (<= level max-level)
-    		  (push (format "- %s [[*%s][%s]]" section-number headline headline) headlines))))
+    		  (push (format "%s [[*%s][%s]]" section-number headline headline) headlines))))
     	    (when toc-end-pos
     	      (goto-char toc-begin-pos)
     	      (delete-region toc-begin-pos toc-end-pos)
