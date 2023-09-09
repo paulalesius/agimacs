@@ -1,5 +1,3 @@
-(straight-use-package 'use-package)
-
 (use-package emacs
     :init
     (savehist-mode)

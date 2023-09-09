@@ -4,6 +4,14 @@
 (setq gc-cons-threshold most-positive-fixnum)
 (add-hook 'emacs-startup-hook
           (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
+;; Startup hook from https://config.daviwil.com/emacs
+(add-hook 'emacs-startup-hook
+	  (lambda ()
+	    (message "Ready for business. Startup in %s with %d gcs."
+		     (format "%.2f seconds"
+			     (float-time
+			      (time-subtract after-init-time before-init-time)))
+		     gcs-done)))
 
 (setq straight-use-package-by-default t)
 
@@ -20,11 +28,4 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; Startup hook from https://config.daviwil.com/emacs
-(add-hook 'emacs-startup-hook
-  (lambda ()
-    (message "Ready for business. Startup in %s with %d gcs."
-             (format "%.2f seconds"
-                     (float-time
-                      (time-subtract after-init-time before-init-time)))
-             gcs-done)))
+(straight-use-package 'use-package)

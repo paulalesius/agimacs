@@ -40,10 +40,18 @@ To prevent package.el from loading packages prior to their init-file loading (wi
 Emacs starts up with a relatively low garbage collection limit to speed up load time.
 We can optimize this by increasing the limit during initialization.
 #+BEGIN_SRC emacs-lisp
-(setq old-gc-cons-threshold gc-cons-threshold)
-(setq gc-cons-threshold most-positive-fixnum)
-(add-hook 'emacs-startup-hook
-          (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
+  (setq old-gc-cons-threshold gc-cons-threshold)
+  (setq gc-cons-threshold most-positive-fixnum)
+  (add-hook 'emacs-startup-hook
+            (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
+  ;; Startup hook from https://config.daviwil.com/emacs
+  (add-hook 'emacs-startup-hook
+  	  (lambda ()
+  	    (message "Ready for business. Startup in %s with %d gcs."
+  		     (format "%.2f seconds"
+  			     (float-time
+  			      (time-subtract after-init-time before-init-time)))
+  		     gcs-done)))
 #+END_SRC
 
 *** straight.el
@@ -71,18 +79,6 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
 *** use-package.el
 #+BEGIN_SRC emacs-lisp
 (straight-use-package 'use-package)
-#+END_SRC
-
-*** Startup stats
-#+BEGIN_SRC emacs-lisp
-;; Startup hook from https://config.daviwil.com/emacs
-(add-hook 'emacs-startup-hook
-  (lambda ()
-    (message "Ready for business. Startup in %s with %d gcs."
-             (format "%.2f seconds"
-                     (float-time
-                      (time-subtract after-init-time before-init-time)))
-             gcs-done)))
 #+END_SRC
 
 ** Initialization (init.el)
