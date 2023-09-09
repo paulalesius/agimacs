@@ -95,6 +95,7 @@
   :after evil
   :config
   (my-leader-def
+    "g" '(:ignore t :which-key "magit")  
     "g g" 'magit-status)
   )
 
@@ -102,6 +103,16 @@
   :after magit
   :custom
   (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" "Allow TODO without colons TODO:"))
+
+(use-package dashboard
+  ;;:init
+  ;;(setq dashboard-startup-banner '((expand-file-name "1.txt" user-emacs-directory)))
+  ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
+  :config
+  ;; Set initial buffer when creating new frames.
+  ;; Note: Disabled, creates dashboard buffer when using emacsclient
+  ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+  (dashboard-setup-startup-hook))
 
 (use-package vertico
   :init
@@ -241,6 +252,41 @@
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
+(defun insert-org-mode-toc ()
+  (interactive)
+  (let ((toc-begin-re "#\\+BEGIN: toc headlines \\([0-9]+\\)")
+	(toc-end-re "#\\+END: toc")
+	(headlines '())
+	(current-section-numbers ()))
+    (save-excursion
+      (goto-char (point-min))
+      (if (re-search-forward toc-begin-re nil t)
+	  (let ((max-level (string-to-number (match-string 1)))
+		(toc-begin-pos (match-end 0))
+		(toc-end-pos (if (re-search-forward toc-end-re nil t)
+				 (match-beginning 0)
+			       nil)))
+	    (goto-char (point-min))
+	    (while (re-search-forward "^\\(*+\\) \\(.*\\)" nil t)
+	      (let* ((level (length (match-string 1)))
+		     (headline (match-string 2))
+		     (section-number (if (> level (length current-section-numbers))
+					 (progn
+					   (setq current-section-numbers (append current-section-numbers (list 1)))
+					   (mapconcat 'number-to-string current-section-numbers "."))
+				       (progn
+					 (setcar (nthcdr (- level 1) current-section-numbers)
+						 (+ 1 (nth (- level 1) current-section-numbers)))
+					 (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
+					 (mapconcat 'number-to-string current-section-numbers ".")))))
+		(when (<= level max-level)
+		  (push (format "- %s [[*%s][%s]]" section-number headline headline) headlines))))
+	    (when toc-end-pos
+	      (goto-char toc-begin-pos)
+	      (delete-region toc-begin-pos toc-end-pos)
+	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
+	(message "Warning: No #+BEGIN: toc block found.")))))
+
 (use-package helpful
   :after general
   :config
@@ -264,13 +310,3 @@
   )
 
 (straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
-
-(use-package dashboard
-  ;;:init
-  ;;(setq dashboard-startup-banner '((expand-file-name "1.txt" user-emacs-directory)))
-  ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
-  :config
-  ;; Set initial buffer when creating new frames.
-  ;; Note: Disabled, creates dashboard buffer when using emacsclient
-  ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
-  (dashboard-setup-startup-hook))

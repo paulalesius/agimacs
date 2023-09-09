@@ -1,6 +1,23 @@
 #+PROPERTY: header-args :tangle no
 #+PROPERTY: header-args:emacs-lisp+ :comments link
 
+#+BEGIN: toc headlines 3
+- 1 [[*Paul's Emacs][Paul's Emacs]]
+- 1.1 [[*Early Initialization (early-init.el)][Early Initialization (early-init.el)]]
+- 1.1.1 [[*Garbage collection during boot][Garbage collection during boot]]
+- 1.1.2 [[*Configure straight.][Configure straight.]]
+- 1.1.3 [[*Startup stats][Startup stats]]
+- 1.2 [[*Initialization (init.el)][Initialization (init.el)]]
+- 1.2.1 [[*Package Manager][Package Manager]]
+- 1.2.2 [[*Infrastructure][Infrastructure]]
+- 1.2.3 [[*Completions][Completions]]
+- 1.2.4 [[*Languages Common][Languages Common]]
+- 1.2.5 [[*Python][Python]]
+- 1.2.6 [[*Org Mode][Org Mode]]
+- 1.2.7 [[*Editors][Editors]]
+- 1.3 [[*Autotangle][Autotangle]]
+#+END: toc
+
 * Paul's Emacs
 I come from Doom Emacs but it becomes very hard to trace issues when there are so many packages and opinionated configurations changing the default behaviors of packages, and I'm not sure what has changed from the defaults using distributions such as Doom. So I decided to write my own configuration from scratch, based on Doom, for instance using Doom Themes and Doom Modeline, which are very nice overall.
 
@@ -68,6 +85,7 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
 :END:
+
 Keys are mapped using general.el in the use-project for the respective module. So nearly all packages will depend on general.el.
 
 *** Package Manager
@@ -207,6 +225,7 @@ Since we're n00bs, we need to see the key options sometimes.
     :after evil
     :config
     (my-leader-def
+      "g" '(:ignore t :which-key "magit")  
       "g g" 'magit-status)
     )
 #+END_SRC
@@ -379,7 +398,7 @@ doesn't activate poetry-tracking-mode
       ))
 #+END_SRC
 
-*** Editors
+*** Org Mode
 **** org.el
     #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -421,6 +440,47 @@ Nice bullet icons for headlines and such, supports unicode fallback
 #   (evil-org-agenda-set-keys))
 # +END_SRC
 
+**** Generate ToC
+This procedure will search for a block that begins with: '#+BEGIN: toc headlines <number>'
+and ends with '#+END: toc', and insert a ToC as its content, replacing the old content.
+
+#+BEGIN_SRC emacs-lisp
+  (defun insert-org-mode-toc ()
+    (interactive)
+    (let ((toc-begin-re "#\\+BEGIN: toc headlines \\([0-9]+\\)")
+  	(toc-end-re "#\\+END: toc")
+  	(headlines '())
+  	(current-section-numbers ()))
+      (save-excursion
+        (goto-char (point-min))
+        (if (re-search-forward toc-begin-re nil t)
+  	  (let ((max-level (string-to-number (match-string 1)))
+  		(toc-begin-pos (match-end 0))
+  		(toc-end-pos (if (re-search-forward toc-end-re nil t)
+  				 (match-beginning 0)
+  			       nil)))
+  	    (goto-char (point-min))
+  	    (while (re-search-forward "^\\(*+\\) \\(.*\\)" nil t)
+  	      (let* ((level (length (match-string 1)))
+  		     (headline (match-string 2))
+  		     (section-number (if (> level (length current-section-numbers))
+  					 (progn
+  					   (setq current-section-numbers (append current-section-numbers (list 1)))
+  					   (mapconcat 'number-to-string current-section-numbers "."))
+  				       (progn
+  					 (setcar (nthcdr (- level 1) current-section-numbers)
+  						 (+ 1 (nth (- level 1) current-section-numbers)))
+  					 (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
+  					 (mapconcat 'number-to-string current-section-numbers ".")))))
+  		(when (<= level max-level)
+  		  (push (format "- %s [[*%s][%s]]" section-number headline headline) headlines))))
+  	    (when toc-end-pos
+  	      (goto-char toc-begin-pos)
+  	      (delete-region toc-begin-pos toc-end-pos)
+  	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
+  	(message "Warning: No #+BEGIN: toc block found.")))))
+#+END_SRC
+*** Editors
 **** helpful.el
 More helpful help
 #+BEGIN_SRC emacs-lisp
@@ -457,3 +517,20 @@ work on this, so you press "C-c '" again in that buffer to go back to org mode w
 #+BEGIN_SRC emacs-lisp
 (straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
 #+END_SRC
+
+#+BEGIN_COMMENT
+# Seems to go into infinite loop
+#** Autotangle
+#:PROPERTIES:
+#:header-args:emacs-lisp: :tangle ~/.emacs.custom/.dir-locals.el
+#:END:
+#
+#This block will make so that this README.org file will be tangled automatically on save, and a table of content will also be generated.
+##+BEGIN_SRC emacs-lisp
+#  ((org-mode . ((eval . (progn
+#                          (defun my-org-autotangle-onsave-hook ()
+#                            (org-babel-tangle)
+#                            (insert-org-mode-toc))
+#                          (add-hook 'before-save-hook 'my-org-autotangle-onsave-hook nil t))))))
+##+END_SRC
+#+END_COMMENT
