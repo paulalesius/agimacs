@@ -14,7 +14,7 @@
 - 1.2.5 [[*Python][Python]]
 - 1.2.6 [[*Rust][Rust]]
 - 1.2.7 [[*Org Mode][Org Mode]]
-- 2 [[*On save README.org][On save README.org]]
+- 2 [[*On save (README.org)][On save (README.org)]]
 #+END toc
 
 * Paul's Emacs
@@ -257,23 +257,38 @@ More helpful help
   (use-package helpful
     :after general
     :config
-    ;; Declare
-    (my-leader-def
-      "h" '(:ignore t :which-key "helpful")
-      "h k" '(helpful-key :which-key "describe key")
-      "h m" '(describe-mode :which-key "describe mode")
-      "h v" '(helpful-variable :which-key "describe variable")
-      ;; describe-function includes both macros and functions, so
-      ;; describe callable is a replacement that includes both
-      ;; helpful-callable and helpful-macro
-      "h f" '(helpful-callable :which-key "describe callable")
-      "h x" '(helpful-command :which-key "describe command"))
     (general-define-key
      :prefix "C-c"
      "C-d" #'helpful-at-point)
     (general-define-key
      :prefix "C-h"
-     "F" #'helpful-function))
+     "k" #'helpful-key
+     "o" #'helpful-symbol
+     "v" #'helpful-variable
+     "m" #'helpful-mode
+     "x" #'helpful-command
+     "F" #'helpful-function
+     "f" #'helpful-callable)
+    ;; Unbind
+    (general-define-key
+     :prefix "C-h"
+     "h" nil ;; view-hello-file, hello?
+     "g" nil ;; describe-gnu-project
+     "n" nil ;; view-emacs-news
+     "t" nil ;; help-with-tutorial
+     "r" nil ;; info-emacs-manual
+     "<f1>" nil ;; help-for-help
+     "C-a" nil ;; about-emacs
+     "C-f" nil ;; view-emacs-faq
+     "C-c" nil ;; describe-copying - copyright
+     "C-d" nil ;; view-emacs-debugging
+     "C-p" nil ;; view-emacs-problems
+     "C-o" nil ;; describe-distribution
+     "C-n" nil ;; view-emacs-news
+     "C-t" nil ;; view-emacs-todo
+     "C-w" nil ;; describe-no-warranty
+     "RET" nil ;; view-order-manuals
+     ))
 #+END_SRC
 
 *** Completions
@@ -549,7 +564,7 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
   )
 #+END_SRC
 
-* On save README.org
+* On save (README.org)
 :PROPERTIES:
 :header-args:emacs-lisp: :tangle ~/.emacs.custom/.dir-locals.el
 :END:

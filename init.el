@@ -114,23 +114,38 @@
 (use-package helpful
   :after general
   :config
-  ;; Declare
-  (my-leader-def
-    "h" '(:ignore t :which-key "helpful")
-    "h k" '(helpful-key :which-key "describe key")
-    "h m" '(describe-mode :which-key "describe mode")
-    "h v" '(helpful-variable :which-key "describe variable")
-    ;; describe-function includes both macros and functions, so
-    ;; describe callable is a replacement that includes both
-    ;; helpful-callable and helpful-macro
-    "h f" '(helpful-callable :which-key "describe callable")
-    "h x" '(helpful-command :which-key "describe command"))
   (general-define-key
    :prefix "C-c"
    "C-d" #'helpful-at-point)
   (general-define-key
    :prefix "C-h"
-   "F" #'helpful-function))
+   "k" #'helpful-key
+   "o" #'helpful-symbol
+   "v" #'helpful-variable
+   "m" #'helpful-mode
+   "x" #'helpful-command
+   "F" #'helpful-function
+   "f" #'helpful-callable)
+  ;; Unbind
+  (general-define-key
+   :prefix "C-h"
+   "h" nil ;; view-hello-file, hello?
+   "g" nil ;; describe-gnu-project
+   "n" nil ;; view-emacs-news
+   "t" nil ;; help-with-tutorial
+   "r" nil ;; info-emacs-manual
+   "<f1>" nil ;; help-for-help
+   "C-a" nil ;; about-emacs
+   "C-f" nil ;; view-emacs-faq
+   "C-c" nil ;; describe-copying - copyright
+   "C-d" nil ;; view-emacs-debugging
+   "C-p" nil ;; view-emacs-problems
+   "C-o" nil ;; describe-distribution
+   "C-n" nil ;; view-emacs-news
+   "C-t" nil ;; view-emacs-todo
+   "C-w" nil ;; describe-no-warranty
+   "RET" nil ;; view-order-manuals
+   ))
 
 (use-package vertico
   :init
@@ -328,3 +343,28 @@
   	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
   	(message "Warning: No #+BEGIN: toc block found."))))
 )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(magit-todos-insert-after '(bottom) nil nil "Changed by setter of obsolete option `magit-todos-insert-at'")
+ '(safe-local-variable-values
+   '((eval progn
+	   (defvar-local my-readme-onsave-hook-guard nil)
+	   (defun my-readme-onsave-hook-payload nil
+	     (org-babel-tangle)
+	     (insert-org-mode-toc))
+	   (defun my-readme-onsave-hook nil "Org tangle triggers onsave again, causing an infinite loop. Place a buffer-local
+                             guard to prevent recursion."
+		  (unless my-readme-onsave-hook-guard
+		    (setq my-readme-onsave-hook-guard t)
+		    (my-readme-onsave-hook-payload)
+		    (setq my-readme-onsave-hook-guard nil)))
+	   (add-hook 'before-save-hook 'my-readme-onsave-hook nil t)))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
