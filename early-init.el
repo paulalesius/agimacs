@@ -1,5 +1,9 @@
 (setq package-enable-at-startup nil)
 
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+
 (setq old-gc-cons-threshold gc-cons-threshold
       gc-cons-threshold most-positive-fixnum)
 (add-hook 'emacs-startup-hook

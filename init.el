@@ -343,28 +343,3 @@
   	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
   	(message "Warning: No #+BEGIN: toc block found."))))
 )
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(magit-todos-insert-after '(bottom) nil nil "Changed by setter of obsolete option `magit-todos-insert-at'")
- '(safe-local-variable-values
-   '((eval progn
-	   (defvar-local my-readme-onsave-hook-guard nil)
-	   (defun my-readme-onsave-hook-payload nil
-	     (org-babel-tangle)
-	     (insert-org-mode-toc))
-	   (defun my-readme-onsave-hook nil "Org tangle triggers onsave again, causing an infinite loop. Place a buffer-local
-                             guard to prevent recursion."
-		  (unless my-readme-onsave-hook-guard
-		    (setq my-readme-onsave-hook-guard t)
-		    (my-readme-onsave-hook-payload)
-		    (setq my-readme-onsave-hook-guard nil)))
-	   (add-hook 'before-save-hook 'my-readme-onsave-hook nil t)))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

@@ -37,6 +37,13 @@ To prevent package.el from loading packages prior to their init-file loading (wi
 (setq package-enable-at-startup nil)
 #+END_SRC
 
+Custom variables are written to custom-file, set this to something other than init.el because this file is generated.
+#+BEGIN_SRC emacs-lisp
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+#+END_SRC
+
 *** Boot gc
 Emacs starts up with a relatively low garbage collection limit to speed up load time.
 We can optimize this by increasing the limit during initialization.
