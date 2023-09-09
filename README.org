@@ -15,7 +15,6 @@
 - 1.2.5 [[*Python][Python]]
 - 1.2.6 [[*Org Mode][Org Mode]]
 - 1.2.7 [[*Editors][Editors]]
-- 1.3 [[*Autotangle][Autotangle]]
 #+END: toc
 
 * Paul's Emacs
