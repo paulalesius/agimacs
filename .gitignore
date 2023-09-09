@@ -6,3 +6,4 @@ recentf
 transient/
 elpa/
 eln-cache/
+custom.el
