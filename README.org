@@ -39,8 +39,8 @@ To prevent package.el from loading packages prior to their init-file loading (wi
 Emacs starts up with a relatively low garbage collection limit to speed up load time.
 We can optimize this by increasing the limit during initialization.
 #+BEGIN_SRC emacs-lisp
-  (setq old-gc-cons-threshold gc-cons-threshold)
-  (setq gc-cons-threshold most-positive-fixnum)
+  (setq old-gc-cons-threshold gc-cons-threshold
+        gc-cons-threshold most-positive-fixnum)
   (add-hook 'emacs-startup-hook
             (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
   ;; Startup hook from https://config.daviwil.com/emacs
@@ -54,12 +54,13 @@ We can optimize this by increasing the limit during initialization.
 #+END_SRC
 
 *** straight.el
-Make every (use-package) also invoke straight.el making specifying ":straight t" unnecessary.
 
+Make every (use-package) also invoke straight.el making specifying ":straight t" unnecessary.
 #+BEGIN_SRC emacs-lisp
 (setq straight-use-package-by-default t)
 #+END_SRC
 
+Bootstrap straight.el
 #+BEGIN_SRC emacs-lisp
   (defvar bootstrap-version)
   (let ((bootstrap-file
@@ -73,10 +74,13 @@ Make every (use-package) also invoke straight.el making specifying ":straight t"
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+#+END_SRC
 
-    (font-lock-add-keywords 'emacs-lisp-mode
-                          '(("(\\(straight-use-package\\)\\_>"
-                             (1 'font-lock-keyword-face))))
+Font-lock the "straight-use-package" symbol.
+#+BEGIN_SRC emacs-lisp
+  (font-lock-add-keywords 'emacs-lisp-mode
+                        '(("(\\(straight-use-package\\)\\_>"
+                           (1 'font-lock-keyword-face))))
 #+END_SRC
 
 *** use-package.el
@@ -92,7 +96,7 @@ Stright doesn't support :init and :config and other attributes, so use-package.
 
 Keys are mapped using general.el in the use-project for the respective module. So nearly all packages will depend on general.el.
 
-**** Built-in packages
+**** Core
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
     :init
@@ -225,8 +229,7 @@ Since we're n00bs, we need to see the key options sometimes.
     :config
     (my-leader-def
       "g" '(:ignore t :which-key "magit")  
-      "g g" 'magit-status)
-    )
+      "g g" 'magit-status))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package magit-todos
@@ -268,8 +271,7 @@ More helpful help
      "C-d" #'helpful-at-point)
     (general-define-key
      :prefix "C-h"
-     "F" #'helpful-function)
-    )
+     "F" #'helpful-function))
 #+END_SRC
 
 *** Completions
@@ -299,8 +301,7 @@ Basically, we want to select items orderless instead of matching completions fro
     ;; Re-define keys
     (general-define-key
      :prefix "C-x"
-     "b" #'consult-buffer)
-  )
+     "b" #'consult-buffer))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package consult-flycheck

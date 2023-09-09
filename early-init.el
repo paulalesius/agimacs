@@ -1,7 +1,7 @@
 (setq package-enable-at-startup nil)
 
-(setq old-gc-cons-threshold gc-cons-threshold)
-(setq gc-cons-threshold most-positive-fixnum)
+(setq old-gc-cons-threshold gc-cons-threshold
+      gc-cons-threshold most-positive-fixnum)
 (add-hook 'emacs-startup-hook
           (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
 ;; Startup hook from https://config.daviwil.com/emacs
@@ -28,8 +28,8 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-  (font-lock-add-keywords 'emacs-lisp-mode
-                        '(("(\\(straight-use-package\\)\\_>"
-                           (1 'font-lock-keyword-face))))
+(font-lock-add-keywords 'emacs-lisp-mode
+                      '(("(\\(straight-use-package\\)\\_>"
+                         (1 'font-lock-keyword-face))))
 
 (straight-use-package 'use-package)

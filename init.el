@@ -94,8 +94,7 @@
   :config
   (my-leader-def
     "g" '(:ignore t :which-key "magit")  
-    "g g" 'magit-status)
-  )
+    "g g" 'magit-status))
 
 (use-package magit-todos
   :after magit
@@ -131,8 +130,7 @@
    "C-d" #'helpful-at-point)
   (general-define-key
    :prefix "C-h"
-   "F" #'helpful-function)
-  )
+   "F" #'helpful-function))
 
 (use-package vertico
   :init
@@ -153,8 +151,7 @@
   ;; Re-define keys
   (general-define-key
    :prefix "C-x"
-   "b" #'consult-buffer)
-)
+   "b" #'consult-buffer))
 
 (use-package consult-flycheck
   :after (consult flycheck))
