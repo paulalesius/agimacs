@@ -7,7 +7,6 @@
 - 1.1.1 [[*Boot gc][Boot gc]]
 - 1.1.2 [[*straight.el][straight.el]]
 - 1.1.3 [[*use-package.el][use-package.el]]
-- 1.1.4 [[*Startup stats][Startup stats]]
 - 1.2 [[*Initialization (init.el)][Initialization (init.el)]]
 - 1.2.2 [[*Infrastructure][Infrastructure]]
 - 1.2.3 [[*Completions][Completions]]
