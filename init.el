@@ -114,6 +114,28 @@
   ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
 
+(use-package helpful
+  :after general
+  :config
+  ;; Declare
+  (my-leader-def
+    "h" '(:ignore t :which-key "helpful")
+    "h k" '(helpful-key :which-key "describe key")
+    "h m" '(describe-mode :which-key "describe mode")
+    "h v" '(helpful-variable :which-key "describe variable")
+    ;; describe-function includes both macros and functions, so
+    ;; describe callable is a replacement that includes both
+    ;; helpful-callable and helpful-macro
+    "h f" '(helpful-callable :which-key "describe callable")
+    "h x" '(helpful-command :which-key "describe command"))
+  (general-define-key
+   :prefix "C-c"
+   "C-d" #'helpful-at-point)
+  (general-define-key
+   :prefix "C-h"
+   "F" #'helpful-function)
+  )
+
 (use-package vertico
   :init
   (vertico-mode))
@@ -181,6 +203,10 @@
   :config
   (global-flycheck-mode t))
 
+(use-package rainbow-delimiters)
+
+(straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
+
 (use-package python
   :after general
   :config
@@ -227,6 +253,26 @@
     "m t r" #'pytest-again
     "m t d" #'pytest-directory
     ))
+
+(use-package rustic
+  :after (flycheck org lsp-mode rainbow-delimiters)
+  :mode ("\\.rs$" . rustic-mode)
+  :mode ("^Cargo\\.toml$" . rustic-mode)
+  :preface
+  (setq rustic-lsp-client nil)
+  (with-eval-after-load 'rustic-lsp-client
+    (remove-hook 'rustic-mode-hook 'rustic-setup-lsp))
+  (with-eval-after-load 'rustic-flycheck
+    (remove-hook 'rustic-mode-hook #'flycheck-mode)
+    (remove-hook 'rustic-mode-hook #'flycheck-mode-off)
+    (remove-hook 'flycheck-mode-hook #'rustic-flycheck-setup))
+  (add-hook 'rustic-mode-hook #'rainbow-delimiters-mode)
+  (setq rustic-indent-method-chain t)
+  (setq rust-prettify-symbols-alist nil)
+  (setq rustic-babel-format-src-block nil
+	rustic-format-trigger nil)
+  (setq rustic-lsp-client 'lsp-mode)
+  (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append))
 
 (use-package org
   :custom
@@ -286,27 +332,3 @@
 	      (delete-region toc-begin-pos toc-end-pos)
 	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
 	(message "Warning: No #+BEGIN: toc block found.")))))
-
-(use-package helpful
-  :after general
-  :config
-  ;; Declare
-  (my-leader-def
-    "h" '(:ignore t :which-key "helpful")
-    "h k" '(helpful-key :which-key "describe key")
-    "h m" '(describe-mode :which-key "describe mode")
-    "h v" '(helpful-variable :which-key "describe variable")
-    ;; describe-function includes both macros and functions, so
-    ;; describe callable is a replacement that includes both
-    ;; helpful-callable and helpful-macro
-    "h f" '(helpful-callable :which-key "describe callable")
-    "h x" '(helpful-command :which-key "describe command"))
-  (general-define-key
-   :prefix "C-c"
-   "C-d" #'helpful-at-point)
-  (general-define-key
-   :prefix "C-h"
-   "F" #'helpful-function)
-  )
-
-(straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))

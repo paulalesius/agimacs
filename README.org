@@ -13,8 +13,8 @@
 - 1.2.3 [[*Completions][Completions]]
 - 1.2.4 [[*Languages Common][Languages Common]]
 - 1.2.5 [[*Python][Python]]
-- 1.2.6 [[*Org Mode][Org Mode]]
-- 1.2.7 [[*Editors][Editors]]
+- 1.2.6 [[*Rust][Rust]]
+- 1.2.7 [[*Org Mode][Org Mode]]
 #+END: toc
 
 * Paul's Emacs
@@ -246,6 +246,31 @@ Since we're n00bs, we need to see the key options sometimes.
     ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
     (dashboard-setup-startup-hook))
 #+END_SRC
+**** helpful.el
+More helpful help
+#+BEGIN_SRC emacs-lisp
+  (use-package helpful
+    :after general
+    :config
+    ;; Declare
+    (my-leader-def
+      "h" '(:ignore t :which-key "helpful")
+      "h k" '(helpful-key :which-key "describe key")
+      "h m" '(describe-mode :which-key "describe mode")
+      "h v" '(helpful-variable :which-key "describe variable")
+      ;; describe-function includes both macros and functions, so
+      ;; describe callable is a replacement that includes both
+      ;; helpful-callable and helpful-macro
+      "h f" '(helpful-callable :which-key "describe callable")
+      "h x" '(helpful-command :which-key "describe command"))
+    (general-define-key
+     :prefix "C-c"
+     "C-d" #'helpful-at-point)
+    (general-define-key
+     :prefix "C-h"
+     "F" #'helpful-function)
+    )
+#+END_SRC
 
 *** Completions
 **** vertico.el
@@ -333,6 +358,39 @@ Basically, we want to select items orderless instead of matching completions fro
   (global-flycheck-mode t))
 #+END_SRC
 
+**** rainbow-delimiters.el
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters)
+#+END_SRC
+
+**** format-all.el
+So essentially, use-package will pull an old version of format-all.el. But a new version still doesn't work for
+org-mode. Doom Emacs uses a modified version that uses el-patch to format source blocks in org. one can however,
+still use "C-c '", which brings up a buffer with the source code inside of the code block, the formatter should
+work on this, so you press "C-c '" again in that buffer to go back to org mode with a formatted code block.
+
+@TODO: Emulate what Doom does at some point.
+#+BEGIN_SRC emacs-lisp
+(straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
+#+END_SRC
+
+#+BEGIN_COMMENT
+# Seems to go into infinite loop
+#** Autotangle
+#:PROPERTIES:
+#:header-args:emacs-lisp: :tangle ~/.emacs.custom/.dir-locals.el
+#:END:
+#
+#This block will make so that this README.org file will be tangled automatically on save, and a table of content will also be generated.
+##+BEGIN_SRC emacs-lisp
+#  ((org-mode . ((eval . (progn
+#                          (defun my-org-autotangle-onsave-hook ()
+#                            (org-babel-tangle)
+#                            (insert-org-mode-toc))
+#                          (add-hook 'before-save-hook 'my-org-autotangle-onsave-hook nil t))))))
+##+END_SRC
+#+END_COMMENT
+
 *** Python
 **** python.el
 Is provided by emacs, so ensure nil
@@ -395,6 +453,30 @@ doesn't activate poetry-tracking-mode
       "m t r" #'pytest-again
       "m t d" #'pytest-directory
       ))
+#+END_SRC
+
+*** Rust
+**** rustic.el
+#+BEGIN_SRC emacs-lisp
+  (use-package rustic
+    :after (flycheck org lsp-mode rainbow-delimiters)
+    :mode ("\\.rs$" . rustic-mode)
+    :mode ("^Cargo\\.toml$" . rustic-mode)
+    :preface
+    (setq rustic-lsp-client nil)
+    (with-eval-after-load 'rustic-lsp-client
+      (remove-hook 'rustic-mode-hook 'rustic-setup-lsp))
+    (with-eval-after-load 'rustic-flycheck
+      (remove-hook 'rustic-mode-hook #'flycheck-mode)
+      (remove-hook 'rustic-mode-hook #'flycheck-mode-off)
+      (remove-hook 'flycheck-mode-hook #'rustic-flycheck-setup))
+    (add-hook 'rustic-mode-hook #'rainbow-delimiters-mode)
+    (setq rustic-indent-method-chain t)
+    (setq rust-prettify-symbols-alist nil)
+    (setq rustic-babel-format-src-block nil
+  	rustic-format-trigger nil)
+    (setq rustic-lsp-client 'lsp-mode)
+    (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append))
 #+END_SRC
 
 *** Org Mode
@@ -479,57 +561,3 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
   	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
   	(message "Warning: No #+BEGIN: toc block found.")))))
 #+END_SRC
-*** Editors
-**** helpful.el
-More helpful help
-#+BEGIN_SRC emacs-lisp
-  (use-package helpful
-    :after general
-    :config
-    ;; Declare
-    (my-leader-def
-      "h" '(:ignore t :which-key "helpful")
-      "h k" '(helpful-key :which-key "describe key")
-      "h m" '(describe-mode :which-key "describe mode")
-      "h v" '(helpful-variable :which-key "describe variable")
-      ;; describe-function includes both macros and functions, so
-      ;; describe callable is a replacement that includes both
-      ;; helpful-callable and helpful-macro
-      "h f" '(helpful-callable :which-key "describe callable")
-      "h x" '(helpful-command :which-key "describe command"))
-    (general-define-key
-     :prefix "C-c"
-     "C-d" #'helpful-at-point)
-    (general-define-key
-     :prefix "C-h"
-     "F" #'helpful-function)
-    )
-#+END_SRC
-
-**** format-all.el
-So essentially, use-package will pull an old version of format-all.el. But a new version still doesn't work for
-org-mode. Doom Emacs uses a modified version that uses el-patch to format source blocks in org. one can however,
-still use "C-c '", which brings up a buffer with the source code inside of the code block, the formatter should
-work on this, so you press "C-c '" again in that buffer to go back to org mode with a formatted code block.
-
-@TODO: Emulate what Doom does at some point.
-#+BEGIN_SRC emacs-lisp
-(straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
-#+END_SRC
-
-#+BEGIN_COMMENT
-# Seems to go into infinite loop
-#** Autotangle
-#:PROPERTIES:
-#:header-args:emacs-lisp: :tangle ~/.emacs.custom/.dir-locals.el
-#:END:
-#
-#This block will make so that this README.org file will be tangled automatically on save, and a table of content will also be generated.
-##+BEGIN_SRC emacs-lisp
-#  ((org-mode . ((eval . (progn
-#                          (defun my-org-autotangle-onsave-hook ()
-#                            (org-babel-tangle)
-#                            (insert-org-mode-toc))
-#                          (add-hook 'before-save-hook 'my-org-autotangle-onsave-hook nil t))))))
-##+END_SRC
-#+END_COMMENT
