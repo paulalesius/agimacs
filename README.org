@@ -201,14 +201,19 @@ For easier key binding definitions.
 
 **** projectile.el
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :after general
-  :config
-  (projectile-mode +1)
-  (my-leader-def
-   :keymaps 'projectile-mode-map
-   "p" '(:ignore t :which-key "projectile")
-   "p p" 'projectile-switch-project))
+  (use-package projectile
+    :after general
+    :config
+    (projectile-mode +1)
+    (my-leader-def
+      :keymaps 'projectile-mode-map
+      "p" '(:ignore t :which-key "projectile")
+      "p a" 'projectile-add-known-project
+      "p d" 'projectile-remove-known-project
+      "p p" 'projectile-switch-project
+      "p f" 'projectile-find-file
+      "p i" 'projectile-invalidate-cache
+      "p k" 'projectile-kill-buffer))
 #+END_SRC
 Also has some sort of projectile-mode-map for full projectile menu
 (use-package projectile
@@ -246,8 +251,9 @@ Since we're n00bs, we need to see the key options sometimes.
     :after evil
     :config
     (my-leader-def
-      "g" '(:ignore t :which-key "magit")  
-      "g g" 'magit-status))
+      "g" '(:ignore t :which-key "magit")
+      "g g" 'magit-status
+      "g t" 'magit-todos-list))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package magit-todos
@@ -267,6 +273,18 @@ Since we're n00bs, we need to see the key options sometimes.
     ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
     (dashboard-setup-startup-hook))
 #+END_SRC
+
+**** lookup.el
+Doom emacs seems to do a lot more, this doesn't seem to work in this config to lookup "use-package" but it works in Doom Emacs. Investigate.
+#+BEGIN_SRC emacs-lisp
+(use-package lookup
+  :straight (lookup :type git :host github :repo "aaronjensen/emacs-lookup")
+  :after general
+  :config
+  (my-leader-def
+    "c h" #'+lookup/documentation))
+#+END_SRC
+
 **** helpful.el
 More helpful help
 #+BEGIN_SRC emacs-lisp

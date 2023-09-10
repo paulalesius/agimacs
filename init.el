@@ -79,9 +79,14 @@
   :config
   (projectile-mode +1)
   (my-leader-def
-   :keymaps 'projectile-mode-map
-   "p" '(:ignore t :which-key "projectile")
-   "p p" 'projectile-switch-project))
+    :keymaps 'projectile-mode-map
+    "p" '(:ignore t :which-key "projectile")
+    "p a" 'projectile-add-known-project
+    "p d" 'projectile-remove-known-project
+    "p p" 'projectile-switch-project
+    "p f" 'projectile-find-file
+    "p i" 'projectile-invalidate-cache
+    "p k" 'projectile-kill-buffer))
 
 (use-package doom-modeline
   :init
@@ -102,8 +107,9 @@
   :after evil
   :config
   (my-leader-def
-    "g" '(:ignore t :which-key "magit")  
-    "g g" 'magit-status))
+    "g" '(:ignore t :which-key "magit")
+    "g g" 'magit-status
+    "g t" 'magit-todos-list))
 
 (use-package magit-todos
   :after magit
@@ -119,6 +125,13 @@
   ;; Note: Disabled, creates dashboard buffer when using emacsclient
   ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
+
+(use-package lookup
+  :straight (lookup :type git :host github :repo "aaronjensen/emacs-lookup")
+  :after general
+  :config
+  (my-leader-def
+    "c h" #'+lookup/documentation))
 
 (use-package helpful
   :after general
