@@ -7,3 +7,4 @@ transient/
 elpa/
 eln-cache/
 custom.el
+custom.el~

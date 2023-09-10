@@ -1,7 +1,7 @@
 #+PROPERTY: header-args :tangle no
 #+PROPERTY: header-args:emacs-lisp+ :comments link
 
-#+BEGIN toc headlines 3
+#+BEGIN_TOC headlines 3
 - 1 [[*Paul's Emacs][Paul's Emacs]]
 - 1.1 [[*Early Initialization (early-init.el)][Early Initialization (early-init.el)]]
 - 1.1.1 [[*Boot gc][Boot gc]]
@@ -15,7 +15,7 @@
 - 1.2.6 [[*Rust][Rust]]
 - 1.2.7 [[*Org Mode][Org Mode]]
 - 2 [[*On save (README.org)][On save (README.org)]]
-#+END toc
+#+END_TOC
 
 * Paul's Emacs
 I come from Doom Emacs but it becomes very hard to trace issues when there are so many packages and opinionated configurations changing the default behaviors of packages, and I'm not sure what has changed from the defaults using distributions such as Doom. So I decided to write my own configuration from scratch, based on Doom, for instance using Doom Themes and Doom Modeline, which are very nice overall.
@@ -174,20 +174,29 @@ For easier key binding definitions.
   (use-package general
     :after evil
     :config
+
     (general-create-definer my-leader-def
       :prefix "SPC"
       :states '(normal visual))
 
     (my-leader-def
-      "ff" 'find-file
+      "f" '(:ignore t :which-key "file")
+      "f f" 'find-file
 
-      ;; flycheck
-      "cn" 'flycheck-next-error
-      "cp" 'flycheck-previous-error
-      "cl" 'flycheck-list-errors
+      "e" '(:ignore t :which-key "emacs")
+      "e c" '((lambda ()
+  	      (interactive)
+    	      (find-file (expand-file-name "README.org" user-emacs-directory)))
+  	    :which-key "README.org")
+
+      "c" '(:ignore t :which-key "code")
+      "c n" 'flycheck-next-error
+      "c p" 'flycheck-previous-error
+      "c l" 'flycheck-list-errors
 
       ;; buffer
-      "bd" 'kill-current-buffer))
+      "b" '(:ignore t :which-key "buffer")
+      "b d" 'kill-current-buffer))
 #+END_SRC
 
 **** projectile.el
@@ -284,8 +293,10 @@ More helpful help
      "n" nil ;; view-emacs-news
      "t" nil ;; help-with-tutorial
      "r" nil ;; info-emacs-manual
+     "L" nil ;; describe-language-environment
      "<f1>" nil ;; help-for-help
      "C-a" nil ;; about-emacs
+     "C-e" nil ;; view-external-packages
      "C-f" nil ;; view-emacs-faq
      "C-c" nil ;; describe-copying - copyright
      "C-d" nil ;; view-emacs-debugging
@@ -308,11 +319,12 @@ More helpful help
 **** orderless.el
 Basically, we want to select items orderless instead of matching completions from beginning to end?
 #+BEGIN_SRC emacs-lisp
-(use-package orderless
-  :init
-  (setq completion-styles '(orderless basic)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+  (use-package orderless
+    :after vertico
+    :init
+    (setq completion-styles '(orderless basic)
+          completion-category-defaults nil
+          completion-category-overrides '((file (styles partial-completion)))))
 #+END_SRC
 **** consult.el and consult-flycheck.el
 #+BEGIN_SRC emacs-lisp
@@ -536,8 +548,8 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
 #+BEGIN_SRC emacs-lisp
     (defun insert-org-mode-toc ()
       (interactive)
-      (let ((toc-begin-re "#\\+BEGIN toc headlines \\([0-9]+\\)")
-    	(toc-end-re "#\\+END toc")
+      (let ((toc-begin-re "#\\+BEGIN_TOC headlines \\([0-9]+\\)")
+    	(toc-end-re "#\\+END_TOC")
     	(headlines '())
     	(current-section-numbers ()))
         (save-excursion

@@ -50,20 +50,29 @@
 (use-package general
   :after evil
   :config
+
   (general-create-definer my-leader-def
     :prefix "SPC"
     :states '(normal visual))
 
   (my-leader-def
-    "ff" 'find-file
+    "f" '(:ignore t :which-key "file")
+    "f f" 'find-file
 
-    ;; flycheck
-    "cn" 'flycheck-next-error
-    "cp" 'flycheck-previous-error
-    "cl" 'flycheck-list-errors
+    "e" '(:ignore t :which-key "emacs")
+    "e c" '((lambda ()
+	      (interactive)
+  	      (find-file (expand-file-name "README.org" user-emacs-directory)))
+	    :which-key "README.org")
+
+    "c" '(:ignore t :which-key "code")
+    "c n" 'flycheck-next-error
+    "c p" 'flycheck-previous-error
+    "c l" 'flycheck-list-errors
 
     ;; buffer
-    "bd" 'kill-current-buffer))
+    "b" '(:ignore t :which-key "buffer")
+    "b d" 'kill-current-buffer))
 
 (use-package projectile
   :after general
@@ -134,8 +143,10 @@
    "n" nil ;; view-emacs-news
    "t" nil ;; help-with-tutorial
    "r" nil ;; info-emacs-manual
+   "L" nil ;; describe-language-environment
    "<f1>" nil ;; help-for-help
    "C-a" nil ;; about-emacs
+   "C-e" nil ;; view-external-packages
    "C-f" nil ;; view-emacs-faq
    "C-c" nil ;; describe-copying - copyright
    "C-d" nil ;; view-emacs-debugging
@@ -152,6 +163,7 @@
   (vertico-mode))
 
 (use-package orderless
+  :after vertico
   :init
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
@@ -310,8 +322,8 @@
 
 (defun insert-org-mode-toc ()
     (interactive)
-    (let ((toc-begin-re "#\\+BEGIN toc headlines \\([0-9]+\\)")
-  	(toc-end-re "#\\+END toc")
+    (let ((toc-begin-re "#\\+BEGIN_TOC headlines \\([0-9]+\\)")
+  	(toc-end-re "#\\+END_TOC")
   	(headlines '())
   	(current-section-numbers ()))
       (save-excursion
