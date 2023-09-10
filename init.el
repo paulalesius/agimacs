@@ -322,8 +322,8 @@
 
 (defun insert-org-mode-toc ()
     (interactive)
-    (let ((toc-begin-re "#\\+BEGIN_TOC: headlines \\([0-9]+\\)")
-  	(toc-end-re "#\\+END_TOC:")
+    (let ((toc-begin-re "#\\+BEGIN toc headlines \\([0-9]+\\)")
+  	(toc-end-re "#\\+END toc")
   	(headlines '())
   	(current-section-numbers ()))
       (save-excursion
