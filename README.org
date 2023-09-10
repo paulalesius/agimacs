@@ -1,7 +1,7 @@
 #+PROPERTY: header-args :tangle no
 #+PROPERTY: header-args:emacs-lisp+ :comments link
 
-#+BEGIN_TOC headlines 3
+#+BEGIN_TOC: headlines 3
 - 1 [[*Paul's Emacs][Paul's Emacs]]
 - 1.1 [[*Early Initialization (early-init.el)][Early Initialization (early-init.el)]]
 - 1.1.1 [[*Boot gc][Boot gc]]
@@ -15,7 +15,7 @@
 - 1.2.6 [[*Rust][Rust]]
 - 1.2.7 [[*Org Mode][Org Mode]]
 - 2 [[*On save (README.org)][On save (README.org)]]
-#+END_TOC
+#+END_TOC:
 
 * Paul's Emacs
 I come from Doom Emacs but it becomes very hard to trace issues when there are so many packages and opinionated configurations changing the default behaviors of packages, and I'm not sure what has changed from the defaults using distributions such as Doom. So I decided to write my own configuration from scratch, based on Doom, for instance using Doom Themes and Doom Modeline, which are very nice overall.
@@ -548,8 +548,8 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
 #+BEGIN_SRC emacs-lisp
     (defun insert-org-mode-toc ()
       (interactive)
-      (let ((toc-begin-re "#\\+BEGIN_TOC headlines \\([0-9]+\\)")
-    	(toc-end-re "#\\+END_TOC")
+      (let ((toc-begin-re "#\\+BEGIN_TOC: headlines \\([0-9]+\\)")
+    	(toc-end-re "#\\+END_TOC:")
     	(headlines '())
     	(current-section-numbers ()))
         (save-excursion
