@@ -144,7 +144,6 @@
    "k" #'helpful-key
    "o" #'helpful-symbol
    "v" #'helpful-variable
-   "m" #'helpful-mode
    "x" #'helpful-command
    "F" #'helpful-function
    "f" #'helpful-callable)
@@ -198,8 +197,6 @@
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook
-  (python-mode . lsp-deferred)
   :init
   (setq lsp-clients-python-command "pylsp"
         lsp-enable-snippet nil
@@ -242,24 +239,66 @@
 
 (straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
 
+(defun +modeline-update-env-in-all-windows-h (&rest _)
+  "Update version strings in all buffers."
+  (dolist (window (window-list))
+    (with-selected-window window
+      (when (fboundp 'doom-modeline-update-env)
+        (doom-modeline-update-env))
+      (force-mode-line-update))))
+
+(defun +modeline-clear-env-in-all-windows-h (&rest _)
+  "Blank out version strings in all buffers."
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (setq doom-modeline-env--version
+              (bound-and-true-p doom-modeline-load-string))))
+  (force-mode-line-update t))
+
 (use-package python
-  :after general
+  :mode ("[./]pyproject.toml\\'" . conf-mode)
+  :after (general projectile lsp-mode flycheck)
+  :hook (python-mode . lsp-deferred)
+  :custom
+  (python-indent-guess-indent-offset-verbose nil "Don't emit warning when indent guessing fails")
   :config
+  (when (and (executable-find "python3")
+	     (string= python-shell-interpreter "python"))
+    (setq python-shell-interpreter "python3"))
+  (add-hook 'python-mode-hook
+	    (defun +python-use-correct-flycheck-executables-h ()
+	      "Use the correct Python executables for Flycheck."
+	      (let ((executable python-shell-interpreter))
+		(save-excursion
+		  (goto-char (point-min))
+		  (save-match-data
+		    (when (or (looking-at "#!/usr/bin/env \\(python[^ \n]+\\)")
+			      (looking-at "#!\\([^ \n]+/python[^ \n]+\\)"))
+		      (setq executable (substring-no-properties (match-string 1))))))
+		;; Try to compile using the appropriate version of Python for
+		;; the file.
+		(setq-local flycheck-python-pycompile-executable executable)
+		;; We might be running inside a virtualenv, in which case the
+		;; modules won't be available. But calling the executables
+		;; directly will work.
+		(setq-local flycheck-python-pylint-executable "pylint")
+		(setq-local flycheck-python-flake8-executable "flake8"))))
+
   (my-leader-def
-   :keymaps 'python-mode-map
-   "m" '(:ignore t :which-key "python")
-   "m s" '(:ignore t :which-key "REPL")
-   ;; REPL
-   "m s r" '(python-shell-send-region :which-key "send region")
-   "m s b" '(python-shell-send-buffer :which-key "send buffer")
-   "m s f" '(python-shell-send-file :which-key "send file")))
+    :keymaps 'python-mode-map
+    "m" '(:ignore t :which-key "python")
+    "m s" '(:ignore t :which-key "REPL")
+    ;; REPL
+    "m s r" '(python-shell-send-region :which-key "send region")
+    "m s b" '(python-shell-send-buffer :which-key "send buffer")
+    "m s f" '(python-shell-send-file :which-key "send file")))
 ;;:config
 ;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
 ;;(setq python-shell-interpreter "ipython"
 ;;      python-shell-interpreter-args "-i --simple-prompt"))
 
 (use-package pyvenv
-  :after (modeline python)
+  :after (doom-modeline python)
   :init
   (add-hook 'pyvenv-post-activate-hooks #'+modeline-update-env-in-all-windows-h)
   (add-hook 'pyvenv-post-deactivate-hooks #'+modeline-clear-env-in-all-windows-h)
@@ -269,11 +308,16 @@
                '(pyvenv-virtual-env-name (" venv:" pyvenv-virtual-env-name " "))))
 
 (use-package poetry
-  :after python
+  :after (python pyvenv)
   :custom
   (poetry-tracking-strategy 'switch-buffer)
   :init
-  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+  (add-hook 'python-mode-hook #'poetry-tracking-mode)
+  :config
+  (my-leader-def
+    :keymaps 'python-mode-map
+    "m p" '(:ignore t :which-key "poetry")
+    "m p p" #'poetry))
 
 (use-package pytest
   :after python
