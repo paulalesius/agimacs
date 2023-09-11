@@ -86,9 +86,6 @@ Bootstrap straight.el
     (load bootstrap-file nil 'nomessage))
 #+END_SRC
 
-
- 
-
 Font-lock the "straight-use-package" symbol.
 #+BEGIN_SRC emacs-lisp
     (font-lock-add-keywords 'emacs-lisp-mode
@@ -111,31 +108,31 @@ Keys are mapped using general.el in the use-project for the respective module. S
 
 **** Core
 #+BEGIN_SRC emacs-lisp
-  (use-package emacs
-    :init
-    (savehist-mode)
+        (use-package emacs
+          :init
+          (savehist-mode)
 
-    ;; Do not allow the cursor in the minibuffer prompt
-    (setq minibuffer-prompt-properties
-          '(read-only t cursor-intangible t face minibuffer-prompt))
-    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+          ;; Do not allow the cursor in the minibuffer prompt
+          (setq minibuffer-prompt-properties
+                '(read-only t cursor-intangible t face minibuffer-prompt))
+          (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-    ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-    ;; Vertico commands are hidden in normal buffers.
-    (setq read-extended-command-predicate
-          #'command-completion-default-include-p)
+          ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+          ;; Vertico commands are hidden in normal buffers.
+          (setq read-extended-command-predicate
+                #'command-completion-default-include-p)
 
-    ;; Enable recursive minibuffers
-    (setq enable-recursive-minibuffers t)
+          ;; Enable recursive minibuffers
+          (setq enable-recursive-minibuffers t)
 
-    ;; Enable recentf mode
-    (recentf-mode 1)
-    (setq recentf-max-menu-items 100
-          recentf-max-saved-items 100)
+          ;; Enable recentf mode
+          (recentf-mode 1)
+          (setq recentf-max-menu-items 100
+                recentf-max-saved-items 100)
 
-    ;; Misc tweaks
-    (menu-bar-mode -1)
-    (tool-bar-mode -1))
+          ;; Misc tweaks
+          (menu-bar-mode -1)
+          (tool-bar-mode -1))
 #+END_SRC
 
 *** Infrastructure
@@ -189,9 +186,9 @@ For easier key binding definitions.
 
       "e" '(:ignore t :which-key "emacs")
       "e c" '((lambda ()
-  	      (interactive)
-    	      (find-file (expand-file-name "README.org" user-emacs-directory)))
-  	    :which-key "README.org")
+      	      (interactive)
+        	      (find-file (expand-file-name "README.org" user-emacs-directory)))
+      	    :which-key "README.org")
 
       "c" '(:ignore t :which-key "code")
       "c n" 'flycheck-next-error
@@ -200,7 +197,17 @@ For easier key binding definitions.
 
       ;; buffer
       "b" '(:ignore t :which-key "buffer")
-      "b d" 'kill-current-buffer))
+      "b d" 'kill-current-buffer)
+  
+    ;; Configure smerge
+    (my-leader-def
+      :keymaps 'smerge-mode-map
+      "g s" '(:ignore t :which-key "smerge")
+      "g s n" 'smerge-next
+      "g s p" 'smerge-prev
+      "g s d" 'smerge-diff-base
+      "g s u" 'smerge-keep-upper
+      "g s l" 'smerge-keep-lower))
 #+END_SRC
 
 **** projectile.el

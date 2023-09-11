@@ -61,9 +61,9 @@
 
     "e" '(:ignore t :which-key "emacs")
     "e c" '((lambda ()
-	      (interactive)
-  	      (find-file (expand-file-name "README.org" user-emacs-directory)))
-	    :which-key "README.org")
+    	      (interactive)
+      	      (find-file (expand-file-name "README.org" user-emacs-directory)))
+    	    :which-key "README.org")
 
     "c" '(:ignore t :which-key "code")
     "c n" 'flycheck-next-error
@@ -72,7 +72,17 @@
 
     ;; buffer
     "b" '(:ignore t :which-key "buffer")
-    "b d" 'kill-current-buffer))
+    "b d" 'kill-current-buffer)
+
+  ;; Configure smerge
+  (my-leader-def
+    :keymaps 'smerge-mode-map
+    "g s" '(:ignore t :which-key "smerge")
+    "g s n" 'smerge-next
+    "g s p" 'smerge-prev
+    "g s d" 'smerge-diff-base
+    "g s u" 'smerge-keep-upper
+    "g s l" 'smerge-keep-lower))
 
 (use-package projectile
   :after general
