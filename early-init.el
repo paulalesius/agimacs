@@ -17,7 +17,8 @@
 			      (time-subtract after-init-time before-init-time)))
 		     gcs-done)))
 
-(setq straight-use-package-by-default t)
+(setq straight-use-package-by-default t
+      straight-process-buffer " *straight-process*")
 
 (defvar bootstrap-version)
 (let ((bootstrap-file
