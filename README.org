@@ -11,9 +11,10 @@
 - 1.2.2 [[*Infrastructure][Infrastructure]]
 - 1.2.3 [[*Completions][Completions]]
 - 1.2.4 [[*Languages Common][Languages Common]]
-- 1.2.5 [[*Python][Python]]
-- 1.2.6 [[*Rust][Rust]]
+- 1.2.5 [[*Python Mode][Python Mode]]
+- 1.2.6 [[*Rust Mode][Rust Mode]]
 - 1.2.7 [[*Org Mode][Org Mode]]
+- 1.2.8 [[*AGI Mode][AGI Mode]]
 - 2 [[*On save (README.org)][On save (README.org)]]
 #+END toc
 
@@ -88,8 +89,8 @@ Bootstrap straight.el
 
 Font-lock the "straight-use-package" symbol.
 #+BEGIN_SRC emacs-lisp
-    (font-lock-add-keywords 'emacs-lisp-mode
-                          '(("(\\(straight-use-package\\)\\_>"
+  (font-lock-add-keywords 'emacs-lisp-mode
+  			'(("(\\(straight-use-package\\)\\_>"
                              (1 'font-lock-keyword-face))))
 #+END_SRC
 
@@ -236,12 +237,13 @@ Also has some sort of projectile-mode-map for full projectile menu
 **** doom-modeline.el
 Also make sure to load the modeline after projectile since it uses the projectile api.
 #+BEGIN_SRC emacs-lisp
-(use-package doom-modeline
-  :init
-  (setq doom-modeline-project-detection 'projectile
-        doom-modeline-buffer-file-name-style 'truncate-upto-project)
-  :config
-  :hook (after-init . doom-modeline-mode))
+  (use-package doom-modeline
+    :custom
+    (doom-modeline-project-detection 'project)
+    (doom-modeline-buffer-file-name-style 'relative-to-project)
+    (doom-modeline-unicode-fallback t)
+    (doom-modeline-minor-modes nil)
+    :hook (after-init . doom-modeline-mode))
 #+END_SRC
 
 **** which-key.el
@@ -319,6 +321,7 @@ More helpful help
      "h" nil ;; view-hello-file, hello?
      "g" nil ;; describe-gnu-project
      "n" nil ;; view-emacs-news
+     "i" nil ;; info 
      "t" nil ;; help-with-tutorial
      "r" nil ;; info-emacs-manual
      "L" nil ;; describe-language-environment
@@ -328,6 +331,7 @@ More helpful help
      "C-f" nil ;; view-emacs-faq
      "C-c" nil ;; describe-copying - copyright
      "C-d" nil ;; view-emacs-debugging
+     "C-h" nil ;; help-for-help, already bound to "?"
      "C-p" nil ;; view-emacs-problems
      "C-o" nil ;; describe-distribution
      "C-n" nil ;; view-emacs-news
@@ -434,12 +438,12 @@ work on this, so you press "C-c '" again in that buffer to go back to org mode w
 
 @TODO: Emulate what Doom does at some point.
 #+BEGIN_SRC emacs-lisp
-(straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
+(use-package format-all
+  :straight (:type git :host github :repo "lassik/emacs-format-all-the-code"))
 #+END_SRC
 
-*** Python
-Common methods extracted from doom-modeline to show the current pyvenv environment.
 **** utilify functions
+Common methods extracted from doom-modeline to show the current pyvenv environment.
 #+BEGIN_SRC emacs-lisp
   (defun +modeline-update-env-in-all-windows-h (&rest _)
     "Update version strings in all buffers."
@@ -457,6 +461,8 @@ Common methods extracted from doom-modeline to show the current pyvenv environme
                 (bound-and-true-p doom-modeline-load-string))))
     (force-mode-line-update t))
 #+END_SRC
+
+*** Python Mode
 **** python.el
 Is provided by emacs, so ensure nil
 #+BEGIN_SRC emacs-lisp
@@ -502,13 +508,6 @@ Is provided by emacs, so ensure nil
   ;;(setq python-shell-interpreter "ipython"
   ;;      python-shell-interpreter-args "-i --simple-prompt"))
 #+END_SRC
-
-**** pythonic.el
-Utilify functions for Python, running Python inside of Docker through TRAMP, etc. I don't need this.
-# #+BEGIN_SRC emacs-lisp
-#   (use-package pythonic
-#     :after python)
-# #+END_SRC
 
 **** pyenv.el
 Needs to be configured this way for some reason, as setting :hook doesn't work
@@ -558,7 +557,7 @@ doesn't activate poetry-tracking-mode
       ))
 #+END_SRC
 
-*** Rust
+*** Rust Mode
 **** rustic.el
 #+BEGIN_SRC emacs-lisp
   (use-package rustic
@@ -665,6 +664,79 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
     	(message "Warning: No #+BEGIN: toc block found."))))
   )
 #+END_SRC
+*** AGI Mode
+Creates a new minor mode "agi-mode", this mode is activated on projectile.el projects which contain a
+agi.yaml file in any of the parent directories of the opened buffer.
+
+#+BEGIN_SRC emacs-lisp
+  (define-minor-mode agi-mode
+    "A minor mode for AGI project."
+    :lighter " 🤖"
+    :keymap (let ((map (make-sparse-keymap)))
+              ;; define-keys here
+              map))
+
+  (use-package agi-mode
+    :ensure nil
+    :straight nil
+    :after (projectile general doom-modeline)
+    :hook (find-file . #'agi-mode-maybe-activate)
+    :config
+
+    (defun agi-project-p ()
+      "Return non-nil if the current buffer is in an AGI project."
+      (and (projectile-project-p)
+           (locate-dominating-file (projectile-project-root) "agi.yaml")))
+
+    (defun agi-mode-maybe-activate ()
+      "Activate `agi-mode` if the current buffer is in an AGI project."
+      (when (agi-project-p)
+        (agi-mode 1)))
+
+                  ;;; Some sort of command for one-shot commands defined in agi.yaml.
+    (defun agi-command ()
+      (message "Test"))
+
+    (my-leader-def
+      :keymaps 'agi-mode-map
+      "a" 'agi-command))
+#+END_SRC
+
+#+BEGIN_COMMENT
+Initial attempts to create a custom modeline item failed, it seems to require creating a segment with doom-modeline-def-modeline and
+then adding it to a modeline with doom-modeline-def-modeline, the thing is that the entire modeline with all segments seemt to be
+required for the list, and it looks like doom-modeline defines several modelines 'main 'media 'pdf 'dired etc. which are displayed
+for major modes?
+
+But I want to just add a minor mode segment and idk where to add it, nothing that I've tried seems to work.
+
+    ;; (defun +agi-mode-icon ()
+    ;;   (lambda ()
+    ;;     (when (bound-and-true-p agi-mode)
+    ;; 	"🤖")))
+    ;; ;; ;; define segment
+    ;; (doom-modeline-def-segment agi-mode-segment
+    ;;   (+agi-mode-icon))
+
+    ;; ;; ;; define new modeline configuration
+    ;; (doom-modeline-def-modeline 'main
+    ;;   ;; left part
+    ;;   '(eldoc bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+    ;;   ;; right part
+    ;;   (compilation objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker time agi-mode-segment) )
+
+    ;;  ;;(defun +agi-modeline-setup-modeline-a () (
+    ;;  (doom-modeline-set-modeline 'agi-modeline)))
+    ;;(advice-add #'doom-modeline-auto-set-modeline :override #'+agi-modeline-setup-modeline-a)
+    
+    ;;:hook
+    ;;(doom-modeline-mode . (lambda ()
+    ;;                         (doom-modeline-set-modeline 'main 'default)))
+    ;;(add-hook 'doom-modeline-mode-hook
+    ;;          (lambda ()
+    ;;            (doom-modeline-set-modeline 'agi-modeline 'default)))
+    )
+#+END_COMMENT
 
 * On save (README.org)
 :PROPERTIES:

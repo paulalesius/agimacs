@@ -99,10 +99,11 @@
     "p k" 'projectile-kill-buffer))
 
 (use-package doom-modeline
-  :init
-  (setq doom-modeline-project-detection 'projectile
-        doom-modeline-buffer-file-name-style 'truncate-upto-project)
-  :config
+  :custom
+  (doom-modeline-project-detection 'project)
+  (doom-modeline-buffer-file-name-style 'relative-to-project)
+  (doom-modeline-unicode-fallback t)
+  (doom-modeline-minor-modes nil)
   :hook (after-init . doom-modeline-mode))
 
 (use-package which-key
@@ -163,6 +164,7 @@
    "h" nil ;; view-hello-file, hello?
    "g" nil ;; describe-gnu-project
    "n" nil ;; view-emacs-news
+   "i" nil ;; info 
    "t" nil ;; help-with-tutorial
    "r" nil ;; info-emacs-manual
    "L" nil ;; describe-language-environment
@@ -172,6 +174,7 @@
    "C-f" nil ;; view-emacs-faq
    "C-c" nil ;; describe-copying - copyright
    "C-d" nil ;; view-emacs-debugging
+   "C-h" nil ;; help-for-help, already bound to "?"
    "C-p" nil ;; view-emacs-problems
    "C-o" nil ;; describe-distribution
    "C-n" nil ;; view-emacs-news
@@ -247,7 +250,8 @@
 
 (use-package rainbow-delimiters)
 
-(straight-use-package '(format-all :type git :host github :repo "lassik/emacs-format-all-the-code"))
+(use-package format-all
+  :straight (:type git :host github :repo "lassik/emacs-format-all-the-code"))
 
 (defun +modeline-update-env-in-all-windows-h (&rest _)
   "Update version strings in all buffers."
@@ -422,3 +426,35 @@
   	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
   	(message "Warning: No #+BEGIN: toc block found."))))
 )
+
+(define-minor-mode agi-mode
+  "A minor mode for AGI project."
+  :lighter " 🤖"
+  :keymap (let ((map (make-sparse-keymap)))
+            ;; define-keys here
+            map))
+
+(use-package agi-mode
+  :ensure nil
+  :straight nil
+  :after (projectile general doom-modeline)
+  :hook (find-file . #'agi-mode-maybe-activate)
+  :config
+
+  (defun agi-project-p ()
+    "Return non-nil if the current buffer is in an AGI project."
+    (and (projectile-project-p)
+         (locate-dominating-file (projectile-project-root) "agi.yaml")))
+
+  (defun agi-mode-maybe-activate ()
+    "Activate `agi-mode` if the current buffer is in an AGI project."
+    (when (agi-project-p)
+      (agi-mode 1)))
+
+                ;;; Some sort of command for one-shot commands defined in agi.yaml.
+  (defun agi-command ()
+    (message "Test"))
+
+  (my-leader-def
+    :keymaps 'agi-mode-map
+    "a" 'agi-command))

@@ -34,7 +34,7 @@
   (load bootstrap-file nil 'nomessage))
 
 (font-lock-add-keywords 'emacs-lisp-mode
-                      '(("(\\(straight-use-package\\)\\_>"
-                         (1 'font-lock-keyword-face))))
+			'(("(\\(straight-use-package\\)\\_>"
+                           (1 'font-lock-keyword-face))))
 
 (straight-use-package 'use-package)
