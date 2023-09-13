@@ -421,7 +421,7 @@
 		     (anchor (replace-regexp-in-string " " "-" (downcase (replace-regexp-in-string "[^a-zA-Z0-9 -]" "" headline)))))
 
 		(when (<= level max-level)
-		  (push (format "- %s [%s](#%s)" section-number headline anchor) headlines))))
+		  (push (format "- %s [[*%s][%s]]" section-number anchor headline) headlines))))
 	    (when toc-end-pos
 	      (goto-char toc-begin-pos)
 	      (delete-region toc-begin-pos toc-end-pos)
