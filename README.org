@@ -315,30 +315,12 @@ More helpful help
      "x" #'helpful-command
      "F" #'helpful-function
      "f" #'helpful-callable)
-    ;; Unbind
-    (general-define-key
-     :prefix "C-h"
-     "h" nil ;; view-hello-file, hello?
-     "g" nil ;; describe-gnu-project
-     "n" nil ;; view-emacs-news
-     "i" nil ;; info 
-     "t" nil ;; help-with-tutorial
-     "r" nil ;; info-emacs-manual
-     "L" nil ;; describe-language-environment
-     "<f1>" nil ;; help-for-help
-     "C-a" nil ;; about-emacs
-     "C-e" nil ;; view-external-packages
-     "C-f" nil ;; view-emacs-faq
-     "C-c" nil ;; describe-copying - copyright
-     "C-d" nil ;; view-emacs-debugging
-     "C-h" nil ;; help-for-help, already bound to "?"
-     "C-p" nil ;; view-emacs-problems
-     "C-o" nil ;; describe-distribution
-     "C-n" nil ;; view-emacs-news
-     "C-t" nil ;; view-emacs-todo
-     "C-w" nil ;; describe-no-warranty
-     "RET" nil ;; view-order-manuals
-     ))
+  
+    ;; Unbind default Emacs C-h keys to reduce clutter
+    (let ((keys-to-unbind '("h" "g" "n" "i" "t" "r" "L" "<f1>" "C-a" "C-e" "C-f"
+  			  "C-c" "C-d" "C-h" "C-p" "C-o" "C-n" "C-t" "C-w" "RET")))
+      (dolist (key keys-to-unbind)
+              (general-define-key :prefix "C-h" key nil))))
 #+END_SRC
 
 *** Completions
