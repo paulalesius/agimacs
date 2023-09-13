@@ -419,6 +419,7 @@
 					 (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
 					 (mapconcat 'number-to-string current-section-numbers "."))))
 		     (anchor (replace-regexp-in-string " " "-" (downcase (replace-regexp-in-string "[^a-zA-Z0-9 -]" "" headline)))))
+
 		(when (<= level max-level)
 		  (push (format "- %s [%s](#%s)" section-number headline anchor) headlines))))
 	    (when toc-end-pos
