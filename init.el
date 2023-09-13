@@ -128,12 +128,11 @@
   (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" "Allow TODO without colons TODO:"))
 
 (use-package dashboard
-  ;;:init
-  ;;(setq dashboard-startup-banner '((expand-file-name "1.txt" user-emacs-directory)))
-  ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
+  :custom
+  (org-agenda-files (append
+			(directory-files-recursively "/storage/src/unnsvc/cases/" "\\.org$")
+			'()))
   :config
-  ;; Set initial buffer when creating new frames.
-  ;; Note: Disabled, creates dashboard buffer when using emacsclient
   ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
 

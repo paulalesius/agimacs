@@ -278,12 +278,11 @@ Since we're n00bs, we need to see the key options sometimes.
 **** dashboard.el
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
-    ;;:init
-    ;;(setq dashboard-startup-banner '((expand-file-name "1.txt" user-emacs-directory)))
-    ;;(setq dashboard-startup-banner '("/home/noname/.emacs.custom/1.txt" . ""))
+    :custom
+    (org-agenda-files (append
+			(directory-files-recursively "/storage/src/unnsvc/cases/" "\\.org$")
+			'()))
     :config
-    ;; Set initial buffer when creating new frames.
-    ;; Note: Disabled, creates dashboard buffer when using emacsclient
     ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
     (dashboard-setup-startup-hook))
 #+END_SRC
@@ -437,7 +436,6 @@ org-mode. Doom Emacs uses a modified version that uses el-patch to format source
 still use "C-c '", which brings up a buffer with the source code inside of the code block, the formatter should
 work on this, so you press "C-c '" again in that buffer to go back to org mode with a formatted code block.
 
-@TODO: Emulate what Doom does at some point.
 #+BEGIN_SRC emacs-lisp
 (use-package format-all
   :straight (:type git :host github :repo "lassik/emacs-format-all-the-code"))
@@ -789,7 +787,7 @@ But I want to just add a minor mode segment and idk where to add it, nothing tha
 
 Adds a hook on saving README.org which will do three things
 
-1. @TODO: Run formatter on this file
+1. Run formatter on this file (TODO)
 2. insert-org-mode-toc to generate ToC for the README
 3. org-babel-tangle to generate files
    
@@ -808,4 +806,3 @@ Adds a hook on saving README.org which will do three things
     			    (setq my-readme-onsave-hook-guard nil)))
                           (add-hook 'before-save-hook 'my-readme-onsave-hook nil t))))))
 #+END_SRC
-
