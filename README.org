@@ -2,21 +2,21 @@
 #+PROPERTY: header-args:emacs-lisp+ :comments link
 
 # BEGIN_TOC 3
-- 1 [[*paulsemacs][Paul's Emacs]]
-- 1.1 [[*earlyinitializationearlyinitel][Early Initialization (early-init.el)]]
-- 1.1.1 [[*bootgc][Boot gc]]
-- 1.1.2 [[*straightel][straight.el]]
-- 1.1.3 [[*usepackageel][use-package.el]]
-- 1.2 [[*initializationinitel][Initialization (init.el)]]
-- 1.2.2 [[*infrastructure][Infrastructure]]
-- 1.2.3 [[*completions][Completions]]
-- 1.2.4 [[*languagescommon][Languages Common]]
-- 1.2.5 [[*pythonmode][Python Mode]]
-- 1.2.6 [[*rustmode][Rust Mode]]
-- 1.2.7 [[*orgmode][Org Mode]]
-- 1.2.8 [[*yamlmode][YAML Mode]]
-- 1.2.9 [[*agimode][AGI Mode]]
-- 2 [[*onsavereadmeorg][On save (README.org)]]
+- 1 [Paul's Emacs](#pauls-emacs)
+- 1.1 [Early Initialization (early-init.el)](#early-initialization-early-initel)
+- 1.1.1 [Boot gc](#boot-gc)
+- 1.1.2 [straight.el](#straightel)
+- 1.1.3 [use-package.el](#use-packageel)
+- 1.2 [Initialization (init.el)](#initialization-initel)
+- 1.2.2 [Infrastructure](#infrastructure)
+- 1.2.3 [Completions](#completions)
+- 1.2.4 [Languages Common](#languages-common)
+- 1.2.5 [Python Mode](#python-mode)
+- 1.2.6 [Rust Mode](#rust-mode)
+- 1.2.7 [Org Mode](#org-mode)
+- 1.2.8 [YAML Mode](#yaml-mode)
+- 1.2.9 [AGI Mode](#agi-mode)
+- 2 [On save (README.org)](#on-save-readmeorg)
 # END_TOC
 
 * Paul's Emacs
@@ -657,9 +657,9 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
   						 (+ 1 (nth (- level 1) current-section-numbers)))
   					 (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
   					 (mapconcat 'number-to-string current-section-numbers "."))))
-  		     (anchor (replace-regexp-in-string "[^a-zA-Z0-9 ]" "" (replace-regexp-in-string " " "-" (downcase headline)))))
+  		     (anchor (replace-regexp-in-string " " "-" (downcase (replace-regexp-in-string "[^a-zA-Z0-9 -]" "" headline)))))
   		(when (<= level max-level)
-  		  (push (format "- %s [[*%s][%s]]" section-number anchor headline) headlines))))
+  		  (push (format "- %s [%s](#%s)" section-number headline anchor) headlines))))
   	    (when toc-end-pos
   	      (goto-char toc-begin-pos)
   	      (delete-region toc-begin-pos toc-end-pos)
