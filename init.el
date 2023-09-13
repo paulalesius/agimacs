@@ -117,7 +117,7 @@
 (use-package dashboard
   :custom
   (org-agenda-files (append
-			(directory-files-recursively "/storage/src/unnsvc/cases/" "\\.org$")
+			(directory-files-recursively "/storage/src/unnsvc/org/" "\\.org$")
 			'()))
   :config
   ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
@@ -129,6 +129,12 @@
   :config
   (my-leader-def
     "c h" #'+lookup/documentation))
+
+(use-package xclip
+  :custom
+  (xclip-method 'wl-copy)
+  :config
+  (xclip-mode 1))
 
 (use-package helpful
   :after general

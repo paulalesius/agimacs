@@ -43,7 +43,7 @@ Enable profiling when EMACS_PROFILE is set to "true"
 
 To prevent package.el from loading packages prior to their init-file loading (with straight.el? What init file?)
 #+BEGIN_SRC emacs-lisp
-  (setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil)
 #+END_SRC
 
 Custom variables are written to custom-file, set this to something other than init.el because this file is generated.
@@ -283,12 +283,13 @@ Since we're n00bs, we need to see the key options sometimes.
   :custom
   (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" "Allow TODO without colons TODO:"))
 #+END_SRC
+
 **** dashboard.el
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
     :custom
     (org-agenda-files (append
-			(directory-files-recursively "/storage/src/unnsvc/cases/" "\\.org$")
+			(directory-files-recursively "/storage/src/unnsvc/org/" "\\.org$")
 			'()))
     :config
     ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
@@ -304,6 +305,16 @@ Doom emacs seems to do a lot more, this doesn't seem to work in this config to l
   :config
   (my-leader-def
     "c h" #'+lookup/documentation))
+#+END_SRC
+
+**** xclip.el
+Copy-paste in Wayland through xclip which wants wl-clipboard
+#+BEGIN_SRC emacs-lisp
+  (use-package xclip
+    :custom
+    (xclip-method 'wl-copy)
+    :config
+    (xclip-mode 1))
 #+END_SRC
 
 **** helpful.el
