@@ -1,17 +1,30 @@
-(use-package emacs
-  :init
-  (setq minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
-        read-extended-command-predicate #'command-completion-default-include-p
-        enable-recursive-minibuffers t
-        recentf-max-menu-items 100
-        recentf-max-saved-items 100)
+(setq minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
+      read-extended-command-predicate #'command-completion-default-include-p
+      enable-recursive-minibuffers t
+      recentf-max-menu-items 100
+      recentf-max-saved-items 100)
 
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-  (savehist-mode)
-  (recentf-mode 1)
-  (menu-bar-mode -1)
-  (tool-bar-mode -1))
+(savehist-mode)
+(recentf-mode 1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+
+(setq wl-copy-process nil)
+(defun wl-copy (text)
+  (setq wl-copy-process (make-process :name "wl-copy"
+                                      :buffer nil
+                                      :command '("wl-copy" "--primary" "-n")
+                                      :connection-type 'pipe))
+  (process-send-string wl-copy-process text)
+  (process-send-eof wl-copy-process))
+(defun wl-paste ()
+  (if (and wl-copy-process (process-live-p wl-copy-process))
+      nil ; should return nil if we're the current paste owner
+      (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
+(setq interprogram-cut-function 'wl-copy)
+(setq interprogram-paste-function 'wl-paste)
 
 (use-package doom-themes
   :init
@@ -27,7 +40,15 @@
   (setq evil-want-integration t
         evil-want-keybinding nil)
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+   (defun my-evil-visual-update-x-selection (orig-fun &rest args)
+     (when interprogram-cut-function
+       (funcall interprogram-cut-function
+ 	       (if (region-active-p)
+ 		   (buffer-substring-no-properties (region-beginning) (region-end))
+ 		 (car args))))
+       (apply orig-fun args))
+   (advice-add 'evil-visual-update-x-selection :around #'my-evil-visual-update-x-selection))
 
 (use-package evil-collection
   :after (evil magit)
@@ -129,12 +150,6 @@
   :config
   (my-leader-def
     "c h" #'+lookup/documentation))
-
-(use-package xclip
-  :custom
-  (xclip-method 'wl-copy)
-  :config
-  (xclip-mode 1))
 
 (use-package helpful
   :after general

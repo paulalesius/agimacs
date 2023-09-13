@@ -131,20 +131,37 @@ Keys are mapped using general.el in the use-project for the respective module. S
 Don't allow cursor in minibuffer. Command completions excludes commands not available in active modes(?)
 **** Core
 #+BEGIN_SRC emacs-lisp
-  (use-package emacs
-    :init
-    (setq minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
-          read-extended-command-predicate #'command-completion-default-include-p
-          enable-recursive-minibuffers t
-          recentf-max-menu-items 100
-          recentf-max-saved-items 100)
+  (setq minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
+        read-extended-command-predicate #'command-completion-default-include-p
+        enable-recursive-minibuffers t
+        recentf-max-menu-items 100
+        recentf-max-saved-items 100)
 
-    (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-    (savehist-mode)
-    (recentf-mode 1)
-    (menu-bar-mode -1)
-    (tool-bar-mode -1))
+  (savehist-mode)
+  (recentf-mode 1)
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+#+END_SRC
+
+Clipboard integration, since I build Emacs without gui, interprogram vars call internal gui code. Configure to
+integrate with wl-clipboard. Selection in visual mode needs to be configured separately for the evil package.
+#+BEGIN_SRC emacs-lisp
+  (setq wl-copy-process nil)
+  (defun wl-copy (text)
+    (setq wl-copy-process (make-process :name "wl-copy"
+                                        :buffer nil
+                                        :command '("wl-copy" "--primary" "-n")
+                                        :connection-type 'pipe))
+    (process-send-string wl-copy-process text)
+    (process-send-eof wl-copy-process))
+  (defun wl-paste ()
+    (if (and wl-copy-process (process-live-p wl-copy-process))
+        nil ; should return nil if we're the current paste owner
+        (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
+  (setq interprogram-cut-function 'wl-copy)
+  (setq interprogram-paste-function 'wl-paste)
 #+END_SRC
 
 *** Infrastructure
@@ -163,12 +180,20 @@ This will install Doom Themes megapack, a collection of themes. And load the doo
 
 **** evil.el and evil-collections.el
 #+BEGIN_SRC emacs-lisp
-(use-package evil
-  :init
-  (setq evil-want-integration t
-        evil-want-keybinding nil)
-  :config
-  (evil-mode 1))
+    (use-package evil
+      :init
+      (setq evil-want-integration t
+            evil-want-keybinding nil)
+      :config
+      (evil-mode 1)
+       (defun my-evil-visual-update-x-selection (orig-fun &rest args)
+         (when interprogram-cut-function
+           (funcall interprogram-cut-function
+     	       (if (region-active-p)
+     		   (buffer-substring-no-properties (region-beginning) (region-end))
+     		 (car args))))
+           (apply orig-fun args))
+       (advice-add 'evil-visual-update-x-selection :around #'my-evil-visual-update-x-selection))
 #+END_SRC
 
 Depend on magit to configure evil for magit too
@@ -305,16 +330,6 @@ Doom emacs seems to do a lot more, this doesn't seem to work in this config to l
   :config
   (my-leader-def
     "c h" #'+lookup/documentation))
-#+END_SRC
-
-**** xclip.el
-Copy-paste in Wayland through xclip which wants wl-clipboard
-#+BEGIN_SRC emacs-lisp
-  (use-package xclip
-    :custom
-    (xclip-method 'wl-copy)
-    :config
-    (xclip-mode 1))
 #+END_SRC
 
 **** helpful.el
