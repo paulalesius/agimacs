@@ -1,3 +1,7 @@
+(when (string-equal (getenv "EMACS_PROFILE") "true")
+  (setq garbage-collection-messages t)
+  (profiler-start 'cpu+mem))
+
 (setq package-enable-at-startup nil)
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -8,7 +12,6 @@
       gc-cons-threshold most-positive-fixnum)
 (add-hook 'emacs-startup-hook
           (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
-;; Startup hook from https://config.daviwil.com/emacs
 (add-hook 'emacs-startup-hook
 	  (lambda ()
 	    (message "Ready for business. Startup in %s with %d gcs."
@@ -16,6 +19,15 @@
 			     (float-time
 			      (time-subtract after-init-time before-init-time)))
 		     gcs-done)))
+
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (when (string-equal (getenv "EMACS_PROFILE") "true")
+              (profiler-stop)
+              (let ((profiler-report-file (expand-file-name "profiler-report.txt" user-emacs-directory)))
+                (with-current-buffer (profiler-report-cpu)
+                  (write-file profiler-report-file))
+                (message "Profiler report saved to %s" profiler-report-file)))))
 
 (setq straight-use-package-by-default t
       straight-process-buffer " *straight-process*")

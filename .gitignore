@@ -8,3 +8,4 @@ elpa/
 eln-cache/
 custom.el
 *~
+profiler-report.txt

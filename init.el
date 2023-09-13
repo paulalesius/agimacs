@@ -1,26 +1,15 @@
 (use-package emacs
   :init
-  (savehist-mode)
-
-  ;; Do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; Vertico commands are hidden in normal buffers.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
-
-  ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t)
-
-  ;; Enable recentf mode
-  (recentf-mode 1)
-  (setq recentf-max-menu-items 100
+  (setq minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
+        read-extended-command-predicate #'command-completion-default-include-p
+        enable-recursive-minibuffers t
+        recentf-max-menu-items 100
         recentf-max-saved-items 100)
 
-  ;; Misc tweaks
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  (savehist-mode)
+  (recentf-mode 1)
   (menu-bar-mode -1)
   (tool-bar-mode -1))
 
@@ -70,11 +59,9 @@
     "c p" 'flycheck-previous-error
     "c l" 'flycheck-list-errors
 
-    ;; buffer
     "b" '(:ignore t :which-key "buffer")
     "b d" 'kill-current-buffer)
 
-  ;; Configure smerge
   (my-leader-def
     :keymaps 'smerge-mode-map
     "g s" '(:ignore t :which-key "smerge")
@@ -258,6 +245,7 @@
     "m s r" '(python-shell-send-region :which-key "send region")
     "m s b" '(python-shell-send-buffer :which-key "send buffer")
     "m s f" '(python-shell-send-file :which-key "send file")))
+
 (use-package python
   :mode ("[./]pyproject.toml\\'" . conf-mode)
   :after (general projectile lsp-mode flycheck)
@@ -269,6 +257,7 @@
   (when (and (executable-find "python3")
              (string= python-shell-interpreter "python"))
     (setq python-shell-interpreter "python3"))
+
   (add-hook 'python-mode-hook
             (defun +python-use-correct-flycheck-executables-h ()
               "Use the correct Python executables for Flycheck."
@@ -287,10 +276,6 @@
         	;; directly will work.
         	(setq-local flycheck-python-pylint-executable "pylint")
         	(setq-local flycheck-python-flake8-executable "flake8")))))
-;;:config
-;; IPython REPL. I use a terminal mainly so there's no need for ipython(?)
-;;(setq python-shell-interpreter "ipython"
-;;      python-shell-interpreter-args "-i --simple-prompt"))
 
 (use-package pyvenv
   :after (doom-modeline python)
