@@ -26,6 +26,9 @@
 (setq interprogram-cut-function 'wl-copy)
 (setq interprogram-paste-function 'wl-paste)
 
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode 1)
+
 (use-package doom-themes
   :init
   (setq doom-themes-enable-bold t

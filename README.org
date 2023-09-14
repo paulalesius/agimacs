@@ -166,6 +166,12 @@ integrate with wl-clipboard. Selection in visual mode needs to be configured sep
   (setq interprogram-paste-function 'wl-paste)
 #+END_SRC
 
+Line numbers
+#+BEGIN_SRC emacs-lisp
+  (setq display-line-numbers-type 'relative)
+  (global-display-line-numbers-mode 1)
+#+END_SRC
+
 *** Infrastructure
 **** doom-themes.el
 This will install Doom Themes megapack, a collection of themes. And load the doom-one theme. The (doom-themes-visual-bell-config) is documented that it may potentially not work with all modelines, but we keep it simple with doom modeline.
@@ -332,12 +338,12 @@ Since we're n00bs, we need to see the key options sometimes.
 
 **** magit.el and magit-todos.el and git-gutter.el
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :after evil
-    :config
-    (leader-scm-def
-      "s" 'magit-status
-      "t" 'magit-todos-list))
+    (use-package magit
+      :after evil
+      :config
+      (leader-scm-def
+        "s" 'magit-status
+        "t" 'magit-todos-list))
 #+END_SRC
 
 ToDo in project repositories
