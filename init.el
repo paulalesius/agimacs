@@ -61,50 +61,92 @@
   :after evil
   :config
 
-  (general-create-definer my-leader-def
-    :prefix "SPC"
+  ;; Buffer-specific bindings
+  (general-create-definer leader-buffer-def
+    :prefix "C-b"
     :states '(normal visual))
 
-  (my-leader-def
-    "f" '(:ignore t :which-key "file")
-    "f f" 'find-file
+  ;; Code specific map
+  (general-create-definer leader-code-def
+    :prefix "C-c"
+    :states '(normal visual))
 
-    "e" '(:ignore t :which-key "emacs")
-    "e c" '((lambda ()
-    	      (interactive)
-      	      (find-file (expand-file-name "README.org" user-emacs-directory)))
-    	    :which-key "README.org")
+  ;; General emacs commands such as edit config files
+  (general-create-definer leader-emacs-def
+    :prefix "C-e"
+    :states '(normal visual))
 
-    "c" '(:ignore t :which-key "code")
-    "c n" 'flycheck-next-error
-    "c p" 'flycheck-previous-error
-    "c l" 'flycheck-list-errors
+  ;; File-specific bindings
+  (general-create-definer leader-file-def
+    :prefix "C-f"
+    :states '(normal visual))
 
-    "b" '(:ignore t :which-key "buffer")
-    "b d" 'kill-current-buffer)
+  ;; Source control commands
+  (general-create-definer leader-scm-def
+    :prefix "C-g"
+    :states '(normal visual))
 
-  (my-leader-def
-    :keymaps 'smerge-mode-map
-    "g s" '(:ignore t :which-key "smerge")
-    "g s n" 'smerge-next
-    "g s p" 'smerge-prev
-    "g s d" 'smerge-diff-base
-    "g s u" 'smerge-keep-upper
-    "g s l" 'smerge-keep-lower))
+  ;; Various help and information
+  (general-create-definer leader-help-def
+    :prefix "C-h"
+    :states '(normal visual))
+
+  ;; Major-mode-specific bindings
+  (general-create-definer leader-mode-def
+    :prefix "C-m"
+    :states '(normal visual))
+
+  ;; Minor mode map
+  (general-create-definer leader-minor-def
+    :prefix "C-M-m"
+    :states '(normal visual))
+
+  ;; Project-specific bindings
+  (general-create-definer leader-project-def
+    :keymaps 'projectile-mode-map
+    :prefix "C-p"
+    :states '(normal visual))
+
+  ;; Window bindings
+  (general-create-definer leader-window-def
+    :prefix "C-w"
+    :states '(normal visual))
+
+  (leader-file-def
+    "f" 'find-file)
+
+  (leader-emacs-def
+    "c" '(lambda ()
+          (interactive)
+            (find-file (expand-file-name "README.org" user-emacs-directory))))
+
+  (leader-code-def
+    "n" 'flycheck-next-error
+    "p" 'flycheck-previous-error
+    "l" 'flycheck-list-errors)
+
+  (leader-buffer-def
+    "d" 'kill-current-buffer)
+
+  (leader-minor-def
+   :keymaps 'smerge-mode-map
+   "n" 'smerge-next
+   "p" 'smerge-prev
+   "d" 'smerge-diff-base
+   "u" 'smerge-keep-upper
+   "l" 'smerge-keep-lower))
 
 (use-package projectile
   :after general
   :config
   (projectile-mode +1)
-  (my-leader-def
-    :keymaps 'projectile-mode-map
-    "p" '(:ignore t :which-key "projectile")
-    "p a" 'projectile-add-known-project
-    "p d" 'projectile-remove-known-project
-    "p p" 'projectile-switch-project
-    "p f" 'projectile-find-file
-    "p i" 'projectile-invalidate-cache
-    "p k" 'projectile-kill-buffer))
+  (leader-project-def
+    "a" 'projectile-add-known-project
+    "d" 'projectile-remove-known-project
+    "p" 'projectile-switch-project
+    "f" 'projectile-find-file
+    "i" 'projectile-invalidate-cache
+    "k" 'projectile-kill-buffer))
 
 (use-package doom-modeline
   :custom
@@ -125,10 +167,9 @@
 (use-package magit
   :after evil
   :config
-  (my-leader-def
-    "g" '(:ignore t :which-key "magit")
-    "g g" 'magit-status
-    "g t" 'magit-todos-list))
+  (leader-scm-def
+    "s" 'magit-status
+    "t" 'magit-todos-list))
 
 (use-package magit-todos
   :after magit
@@ -137,40 +178,32 @@
 
 (use-package dashboard
   :custom
-  (org-agenda-files (append
-			(directory-files-recursively "/storage/src/unnsvc/org/" "\\.org$")
-			'()))
+  (org-agenda-files '("/storage/src/unnsvc/org/general.org"))
   :config
   ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
 
 (use-package lookup
-  :straight (lookup :type git :host github :repo "aaronjensen/emacs-lookup")
+  :straight (lookup :type git :host github :repo "aaronjensen/emacs-lookup" :commit "6ffdb61ef7c70077dee45330d4444a0eec559e01")
   :after general
   :config
-  (my-leader-def
-    "c h" #'+lookup/documentation))
+  (leader-code-def
+    "h" #'+lookup/documentation))
 
 (use-package helpful
   :after general
   :config
-  (general-define-key
-   :prefix "C-c"
-   "C-d" #'helpful-at-point)
-  (general-define-key
-   :prefix "C-h"
+
+  (leader-code-def
+   "d" #'helpful-at-point)
+
+  (leader-help-def
    "k" #'helpful-key
    "o" #'helpful-symbol
    "v" #'helpful-variable
    "x" #'helpful-command
    "F" #'helpful-function
-   "f" #'helpful-callable)
-
-  ;; Unbind default Emacs C-h keys to reduce clutter
-  (let ((keys-to-unbind '("h" "g" "n" "i" "t" "r" "L" "<f1>" "C-a" "C-e" "C-f"
-			  "C-c" "C-d" "C-h" "C-p" "C-o" "C-n" "C-t" "C-w" "RET")))
-    (dolist (key keys-to-unbind)
-            (general-define-key :prefix "C-h" key nil))))
+   "f" #'helpful-callable))
 
 (use-package vertico
   :init
@@ -186,10 +219,14 @@
 (use-package consult
   :after general
   :config
-  (my-leader-def
-   "b b" #'consult-buffer
-   "f r" #'consult-recent-file)
-  ;; Re-define keys
+
+  (leader-buffer-def
+   "b" #'consult-buffer)
+
+  (leader-file-def
+   "r" #'consult-recent-file)
+
+  ;; One-off to re-define keys in the stock C-x
   (general-define-key
    :prefix "C-x"
    "b" #'consult-buffer))
@@ -240,7 +277,7 @@
 (use-package rainbow-delimiters)
 
 (use-package format-all
-  :straight (:type git :host github :repo "lassik/emacs-format-all-the-code"))
+  :straight (:type git :host github :repo "lassik/emacs-format-all-the-code" :commit "22e48b831d64ca1647ae28f9e9485378577ea4f8"))
 
 (defun +modeline-update-env-in-all-windows-h (&rest _)
   "Update version strings in all buffers."
@@ -259,13 +296,13 @@
   (force-mode-line-update t))
 
 (defun setup-python-mode-keybindings()
-  (my-leader-def
+  (leader-mode-def
     :keymaps 'python-mode-map
-    "m s" '(:ignore t :which-key "REPL")
+    "s" '(:ignore t :which-key "REPL")
     ;; REPL
-    "m s r" '(python-shell-send-region :which-key "send region")
-    "m s b" '(python-shell-send-buffer :which-key "send buffer")
-    "m s f" '(python-shell-send-file :which-key "send file")))
+    "s r" '(python-shell-send-region :which-key "send region")
+    "s b" '(python-shell-send-buffer :which-key "send buffer")
+    "s f" '(python-shell-send-file :which-key "send file")))
 
 (use-package python
   :mode ("[./]pyproject.toml\\'" . conf-mode)
@@ -315,24 +352,24 @@
   :init
   (add-hook 'python-mode-hook #'poetry-tracking-mode)
   :config
-  (my-leader-def
+  (leader-mode-def
     :keymaps 'python-mode-map
-    "m p" '(:ignore t :which-key "poetry")
-    "m p p" #'poetry))
+    "p" '(:ignore t :which-key "poetry")
+    "p p" #'poetry))
 
 (use-package pytest
   :after python
   :config
-  (my-leader-def
-    :keymaps 'python-mode-map
-    "m t" '(:ignore t :which-key "pytest")
-    ;; Testing
-    "m t a" #'pytest-all
-    "m t m" #'pytest-module
-    "m t c" #'pytest-one
-    "m t r" #'pytest-again
-    "m t d" #'pytest-directory
-    ))
+
+  (leader-mode-def
+   :keymaps 'python-mode-map
+   "t" '(:ignore t :which-key "pytest")
+   ;; Testing
+   "t a" #'pytest-all
+   "t m" #'pytest-module
+   "t c" #'pytest-one
+   "t r" #'pytest-again
+   "t d" #'pytest-directory))
 
 (use-package rustic
   :after (flycheck org lsp-mode rainbow-delimiters)
@@ -422,9 +459,9 @@
   :hook (yaml-mode . setup-yaml-mode-keybindings)
   :config
   (defun setup-yaml-mode-keybindings()
-    (my-leader-def
+    (leader-mode-def
       :keymaps 'yaml-mode-map
-      "m n" #'newline-and-indent)))
+      "n" #'newline-and-indent)))
 
 (define-minor-mode agi-mode
   "A minor mode for AGI project."
@@ -463,14 +500,11 @@
               (arguments (cdr (assoc 'arguments command))))
           (let ((func (agi-command-func-generator executable arguments)))
             (fset (intern (concat "agi-command-" name)) func)
-            (my-leader-def
+            (leader-minor-def
               :keymaps 'agi-mode-map
               (format "a %d" counter) (intern (concat "agi-command-" name)))
             (message "Setting up command: %s" name))
-          (setq counter (1+ counter))))))
-  (my-leader-def
-    :keymaps 'agi-mode-map
-    "a" '(:ignore t :which-key "agi")))
+          (setq counter (1+ counter)))))))
 
 (defun agi-project-p ()
   "Return non-nil if the current buffer is in an AGI project."
