@@ -330,7 +330,7 @@ Since we're n00bs, we need to see the key options sometimes.
   (which-key-setup-minibuffer))
 #+END_SRC
 
-**** magit.el and magit-todos.el
+**** magit.el and magit-todos.el and git-gutter.el
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :after evil
@@ -339,11 +339,27 @@ Since we're n00bs, we need to see the key options sometimes.
       "s" 'magit-status
       "t" 'magit-todos-list))
 #+END_SRC
+
+ToDo in project repositories
 #+BEGIN_SRC emacs-lisp
 (use-package magit-todos
   :after magit
   :custom
   (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" "Allow TODO without colons TODO:"))
+#+END_SRC
+
+Hilight where the file is changed in the fringes
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter
+    :if (not (display-graphic-p))
+    :after magit
+    :custom
+    (git-gutter:window-width 1)
+    (git-gutter:added-sign "+")
+    (git-gutter:deleted-sign "-")
+    (git-gutter:modified-sign "=")
+    :config
+    (global-git-gutter-mode +1))
 #+END_SRC
 
 **** dashboard.el
@@ -464,14 +480,16 @@ Basically, we want to select items orderless instead of matching completions fro
 
 **** flycheck.el
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :after lsp-mode
-  ;;:hook (lsp-mode . flycheck-mode)
-  :init
-  (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
-        flycheck-idle-change-delay 0.8)
-  :config
-  (global-flycheck-mode t))
+  (use-package flycheck
+    :custom
+    (flycheck-indication-mode 'right-fringe "Move the indicator to the right fringe to allow git-gutter")
+    :after lsp-mode
+    ;;:hook (lsp-mode . flycheck-mode)
+    :init
+    (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
+          flycheck-idle-change-delay 0.8)
+    :config
+    (global-flycheck-mode t))
 #+END_SRC
 
 **** rainbow-delimiters.el

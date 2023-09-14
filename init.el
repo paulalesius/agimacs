@@ -176,6 +176,17 @@
   :custom
   (magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" "Allow TODO without colons TODO:"))
 
+(use-package git-gutter
+  :if (not (display-graphic-p))
+  :after magit
+  :custom
+  (git-gutter:window-width 1)
+  (git-gutter:added-sign "+")
+  (git-gutter:deleted-sign "-")
+  (git-gutter:modified-sign "=")
+  :config
+  (global-git-gutter-mode +1))
+
 (use-package dashboard
   :custom
   (org-agenda-files '("/storage/src/unnsvc/org/general.org"))
@@ -266,6 +277,8 @@
   :commands company-lsp)
 
 (use-package flycheck
+  :custom
+  (flycheck-indication-mode 'right-fringe "Move the indicator to the right fringe to allow git-gutter")
   :after lsp-mode
   ;;:hook (lsp-mode . flycheck-mode)
   :init
