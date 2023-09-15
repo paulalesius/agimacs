@@ -134,8 +134,8 @@
 
   (leader-emacs-def
     "c" '(lambda ()
-          (interactive)
-            (find-file (expand-file-name "README.org" user-emacs-directory))))
+           (interactive)
+           (find-file (expand-file-name "README.org" user-emacs-directory))))
 
   (leader-code-def
     "n" 'flycheck-next-error
@@ -145,17 +145,17 @@
   (leader-buffer-def
     "d" 'kill-current-buffer)
 
- (leader-toggle-def
-  "l" 'toggle-line-number-mode)
+  (leader-toggle-def
+    "l" 'toggle-line-number-mode)
 
   (leader-mode-def
-   :prefix "C-m"
-   :keymaps 'smerge-mode-map
-   "n" 'smerge-next
-   "p" 'smerge-prev
-   "d" 'smerge-diff-base
-   "u" 'smerge-keep-upper
-   "l" 'smerge-keep-lower))
+    :prefix "C-m"
+    :keymaps 'smerge-mode-map
+    "n" 'smerge-next
+    "p" 'smerge-prev
+    "d" 'smerge-diff-base
+    "u" 'smerge-keep-upper
+    "l" 'smerge-keep-lower))
 
 (use-package projectile
   :after general
@@ -211,6 +211,7 @@
 (use-package dashboard
   :custom
   (org-agenda-files '("/storage/src/unnsvc/org/general.org"))
+  (dashboard-startup-banner (expand-file-name "dashboard.txt" user-emacs-directory))
   :config
   ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (dashboard-setup-startup-hook))
