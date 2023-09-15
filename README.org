@@ -20,6 +20,7 @@
 # END_TOC
 
 * AGIMACS
+#+BEGIN_SRC text
    ▄▄▄        ▄████  ██▓ ███▄ ▄███▓ ▄▄▄       ▄████▄    ██████
   ▒████▄     ██▒ ▀█▒▓██▒▓██▒▀█▀ ██▒▒████▄    ▒██▀ ▀█  ▒██    ▒
   ▒██  ▀█▄  ▒██░▄▄▄░▒██▒▓██    ▓██░▒██  ▀█▄  ▒▓█    ▄ ░ ▓██▄
@@ -30,7 +31,8 @@
     ░   ▒   ░ ░   ░  ▒ ░░      ░     ░   ▒   ░        ░  ░  ░
         ░  ░      ░  ░         ░         ░  ░░ ░            ░
                                              ░                 
-
+#+END_SRC
+                                    
 I come from Doom Emacs but it becomes very hard to trace issues when there are so many packages and opinionated configurations changing the default behaviors of packages, and I'm not sure what has changed from the defaults using distributions such as Doom. So I decided to write my own configuration from scratch, based on Doom, for instance using Doom Themes and Doom Modeline, which are very nice overall.
 
 This file is using "org-tangle" metadata, so pressing C-c C-v C-t will generate three files, early-init.el, init.el, and .dir-locals.el. Each generated file has its own top level headline.
