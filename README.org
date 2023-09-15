@@ -150,26 +150,35 @@ The core code is unstructed in general, the rest of the packages use structured 
 Clipboard integration, since I build Emacs without gui, interprogram vars call internal gui code. Configure to
 integrate with wl-clipboard. Selection in visual mode needs to be configured separately for the evil package.
 #+BEGIN_SRC emacs-lisp
-  (setq wl-copy-process nil)
-  (defun wl-copy (text)
-    (setq wl-copy-process (make-process :name "wl-copy"
-                                        :buffer nil
-                                        :command '("wl-copy" "--primary" "-n")
-                                        :connection-type 'pipe))
-    (process-send-string wl-copy-process text)
-    (process-send-eof wl-copy-process))
-  (defun wl-paste ()
-    (if (and wl-copy-process (process-live-p wl-copy-process))
-        nil ; should return nil if we're the current paste owner
-        (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
-  (setq interprogram-cut-function 'wl-copy)
-  (setq interprogram-paste-function 'wl-paste)
+(setq wl-copy-process nil)
+(defun wl-copy (text)
+  (setq wl-copy-process (make-process :name "wl-copy"
+                                      :buffer nil
+                                      :command '("wl-copy" "--primary" "-n")
+                                      :connection-type 'pipe))
+  (process-send-string wl-copy-process text)
+  (process-send-eof wl-copy-process))
+(defun wl-paste ()
+  (if (and wl-copy-process (process-live-p wl-copy-process))
+      nil ; should return nil if we're the current paste owner
+    (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
+(setq interprogram-cut-function 'wl-copy)
+(setq interprogram-paste-function 'wl-paste)
 #+END_SRC
 
 Line numbers
 #+BEGIN_SRC emacs-lisp
   (setq display-line-numbers-type 'relative)
   (global-display-line-numbers-mode 1)
+  (defun toggle-line-number-mode ()
+    "Toggle between relative and absolute line numbers."
+    (interactive)
+    (if (eq display-line-numbers-type 'relative)
+        (setq display-line-numbers-type 'absolute)
+      (setq display-line-numbers-type 'relative))
+    (if display-line-numbers
+        (display-line-numbers-mode 'toggle)
+      (display-line-numbers-mode 1)))
 #+END_SRC
 
 *** Infrastructure
@@ -256,16 +265,21 @@ For easier key binding definitions.
       :prefix "C-m"
       :states '(normal visual))
 
-    ;; Minor mode map
-    (general-create-definer leader-minor-def
-      :prefix "C-M-m"
-      :states '(normal visual))
-
     ;; Project-specific bindings
     (general-create-definer leader-project-def
       :keymaps 'projectile-mode-map
       :prefix "C-p"
       :states '(normal visual))
+
+    ;; Already bound so unbind from various built in packages and evil.el, this
+    ;; causes an error during startup where it says that "C-t is not a leader key".
+    ;; Unbind all
+    (define-key global-map (kbd "C-t") nil)
+    (define-key evil-normal-state-map (kbd "C-t") nil)
+    (define-key evil-insert-state-map (kbd "C-t") nil)
+    (general-create-definer leader-toggle-def
+      :prefix "C-t"
+      :states '(normal insert visual))
 
     ;; Window bindings
     (general-create-definer leader-window-def
@@ -288,7 +302,11 @@ For easier key binding definitions.
     (leader-buffer-def
       "d" 'kill-current-buffer)
 
-    (leader-minor-def
+   (leader-toggle-def
+    "l" 'toggle-line-number-mode)
+
+    (leader-mode-def
+     :prefix "C-m"
      :keymaps 'smerge-mode-map
      "n" 'smerge-next
      "p" 'smerge-prev
@@ -753,6 +771,8 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
 Creates a new minor mode "agi-mode", this mode is activated on projectile.el projects which contain a
 agi.yaml file in any of the parent directories of the opened buffer.
 
+@TODO: AGI commands for model interaction
+
 #+BEGIN_SRC emacs-lisp
   (define-minor-mode agi-mode
     "A minor mode for AGI project."
@@ -791,7 +811,8 @@ agi.yaml file in any of the parent directories of the opened buffer.
                 (arguments (cdr (assoc 'arguments command))))
             (let ((func (agi-command-func-generator executable arguments)))
               (fset (intern (concat "agi-command-" name)) func)
-              (leader-minor-def
+              (leader-mode-def
+                :prefix "C-m"
                 :keymaps 'agi-mode-map
                 (format "a %d" counter) (intern (concat "agi-command-" name)))
               (message "Setting up command: %s" name))

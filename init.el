@@ -22,12 +22,21 @@
 (defun wl-paste ()
   (if (and wl-copy-process (process-live-p wl-copy-process))
       nil ; should return nil if we're the current paste owner
-      (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
+    (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
 (setq interprogram-cut-function 'wl-copy)
 (setq interprogram-paste-function 'wl-paste)
 
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode 1)
+(defun toggle-line-number-mode ()
+  "Toggle between relative and absolute line numbers."
+  (interactive)
+  (if (eq display-line-numbers-type 'relative)
+      (setq display-line-numbers-type 'absolute)
+    (setq display-line-numbers-type 'relative))
+  (if display-line-numbers
+      (display-line-numbers-mode 'toggle)
+    (display-line-numbers-mode 1)))
 
 (use-package doom-themes
   :init
@@ -99,16 +108,21 @@
     :prefix "C-m"
     :states '(normal visual))
 
-  ;; Minor mode map
-  (general-create-definer leader-minor-def
-    :prefix "C-M-m"
-    :states '(normal visual))
-
   ;; Project-specific bindings
   (general-create-definer leader-project-def
     :keymaps 'projectile-mode-map
     :prefix "C-p"
     :states '(normal visual))
+
+  ;; Already bound so unbind from various built in packages and evil.el, this
+  ;; causes an error during startup where it says that "C-t is not a leader key".
+  ;; Unbind all
+  (define-key global-map (kbd "C-t") nil)
+  (define-key evil-normal-state-map (kbd "C-t") nil)
+  (define-key evil-insert-state-map (kbd "C-t") nil)
+  (general-create-definer leader-toggle-def
+    :prefix "C-t"
+    :states '(normal insert visual))
 
   ;; Window bindings
   (general-create-definer leader-window-def
@@ -131,7 +145,11 @@
   (leader-buffer-def
     "d" 'kill-current-buffer)
 
-  (leader-minor-def
+ (leader-toggle-def
+  "l" 'toggle-line-number-mode)
+
+  (leader-mode-def
+   :prefix "C-m"
    :keymaps 'smerge-mode-map
    "n" 'smerge-next
    "p" 'smerge-prev
@@ -516,7 +534,8 @@
               (arguments (cdr (assoc 'arguments command))))
           (let ((func (agi-command-func-generator executable arguments)))
             (fset (intern (concat "agi-command-" name)) func)
-            (leader-minor-def
+            (leader-mode-def
+              :prefix "C-m"
               :keymaps 'agi-mode-map
               (format "a %d" counter) (intern (concat "agi-command-" name)))
             (message "Setting up command: %s" name))
