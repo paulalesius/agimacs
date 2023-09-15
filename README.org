@@ -1,6 +1,19 @@
 #+PROPERTY: header-args :tangle no
 #+PROPERTY: header-args:emacs-lisp+ :comments link
 
+#+BEGIN_SRC text
+   ▄▄▄        ▄████  ██▓ ███▄ ▄███▓ ▄▄▄       ▄████▄    ██████
+  ▒████▄     ██▒ ▀█▒▓██▒▓██▒▀█▀ ██▒▒████▄    ▒██▀ ▀█  ▒██    ▒
+  ▒██  ▀█▄  ▒██░▄▄▄░▒██▒▓██    ▓██░▒██  ▀█▄  ▒▓█    ▄ ░ ▓██▄
+  ░██▄▄▄▄██ ░▓█  ██▓░██░▒██    ▒██ ░██▄▄▄▄██ ▒▓▓▄ ▄██▒  ▒   ██▒
+   ▓█   ▓██▒░▒▓███▀▒░██░▒██▒   ░██▒ ▓█   ▓██▒▒ ▓███▀ ░▒██████▒▒
+   ▒▒   ▓▒█░ ░▒   ▒ ░▓  ░ ▒░   ░  ░ ▒▒   ▓▒█░░ ░▒ ▒  ░▒ ▒▓▒ ▒ ░
+    ▒   ▒▒ ░  ░   ░  ▒ ░░  ░      ░  ▒   ▒▒ ░  ░  ▒   ░ ░▒  ░ ░
+    ░   ▒   ░ ░   ░  ▒ ░░      ░     ░   ▒   ░        ░  ░  ░
+        ░  ░      ░  ░         ░         ░  ░░ ░            ░
+                                             ░                 
+#+END_SRC
+
 # BEGIN_TOC 3
 - 1 [[*pauls-emacs][Paul's Emacs]]
 - 1.1 [[*early-initialization-early-initel][Early Initialization (early-init.el)]]
@@ -18,19 +31,6 @@
 - 1.2.9 [[*agi-mode][AGI Mode]]
 - 2 [[*on-save-readmeorg][On save (README.org)]]
 # END_TOC
-
-#+BEGIN_SRC text
-   ▄▄▄        ▄████  ██▓ ███▄ ▄███▓ ▄▄▄       ▄████▄    ██████
-  ▒████▄     ██▒ ▀█▒▓██▒▓██▒▀█▀ ██▒▒████▄    ▒██▀ ▀█  ▒██    ▒
-  ▒██  ▀█▄  ▒██░▄▄▄░▒██▒▓██    ▓██░▒██  ▀█▄  ▒▓█    ▄ ░ ▓██▄
-  ░██▄▄▄▄██ ░▓█  ██▓░██░▒██    ▒██ ░██▄▄▄▄██ ▒▓▓▄ ▄██▒  ▒   ██▒
-   ▓█   ▓██▒░▒▓███▀▒░██░▒██▒   ░██▒ ▓█   ▓██▒▒ ▓███▀ ░▒██████▒▒
-   ▒▒   ▓▒█░ ░▒   ▒ ░▓  ░ ▒░   ░  ░ ▒▒   ▓▒█░░ ░▒ ▒  ░▒ ▒▓▒ ▒ ░
-    ▒   ▒▒ ░  ░   ░  ▒ ░░  ░      ░  ▒   ▒▒ ░  ░  ▒   ░ ░▒  ░ ░
-    ░   ▒   ░ ░   ░  ▒ ░░      ░     ░   ▒   ░        ░  ░  ░
-        ░  ░      ░  ░         ░         ░  ░░ ░            ░
-                                             ░                 
-#+END_SRC
 
 * Paul's Emacs
 I come from Doom Emacs but it becomes very hard to trace issues when there are so many packages and opinionated configurations changing the default behaviors of packages, and I'm not sure what has changed from the defaults using distributions such as Doom. So I decided to write my own configuration from scratch, based on Doom, for instance using Doom Themes and Doom Modeline, which are very nice overall.
