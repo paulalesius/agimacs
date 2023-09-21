@@ -13,12 +13,12 @@
 (add-hook 'emacs-startup-hook
           (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
 (add-hook 'emacs-startup-hook
-  	(lambda ()
-  	  (message "Ready for business. Startup in %s with %d gcs."
-  		   (format "%.2f seconds"
-  			   (float-time
-  			    (time-subtract after-init-time before-init-time)))
-  		   gcs-done)))
+  	  (lambda ()
+  	    (message "Ready for business. Startup in %s with %d gcs."
+  		     (format "%.2f seconds"
+  			     (float-time
+  			      (time-subtract after-init-time before-init-time)))
+  		     gcs-done)))
 
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -29,24 +29,24 @@
                   (write-file profiler-report-file))
                 (message "Profiler report saved to %s" profiler-report-file)))))
 
-(setq straight-use-package-by-default t
-      straight-process-buffer " *straight-process*")
+  (setq straight-use-package-by-default t
+        straight-process-buffer " *straight-process*")
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 6))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 
-(font-lock-add-keywords 'emacs-lisp-mode
-  		      '(("(\\(straight-use-package\\)\\_>"
-                           (1 'font-lock-keyword-face))))
+  (font-lock-add-keywords 'emacs-lisp-mode
+  			'(("(\\(straight-use-package\\)\\_>"
+                             (1 'font-lock-keyword-face))))
 
-(straight-use-package 'use-package)
+  (straight-use-package 'use-package)

@@ -52,9 +52,9 @@ This file is using "org-tangle" metadata, so pressing C-c C-v C-t will generate 
 
 Enable profiling when EMACS_PROFILE is set to "true"
 #+BEGIN_SRC emacs-lisp
-  (when (string-equal (getenv "EMACS_PROFILE") "true")
-    (setq garbage-collection-messages t)
-    (profiler-start 'cpu+mem))
+(when (string-equal (getenv "EMACS_PROFILE") "true")
+  (setq garbage-collection-messages t)
+  (profiler-start 'cpu+mem))
 #+END_SRC
 
 To prevent package.el from loading packages prior to their init-file loading (with straight.el? What init file?)
@@ -75,11 +75,11 @@ We can optimize this by increasing the limit during initialization.
 
 Startup hook from https://config.daviwil.com/emacs 
 #+BEGIN_SRC emacs-lisp
-  (setq old-gc-cons-threshold gc-cons-threshold
-        gc-cons-threshold most-positive-fixnum)
-  (add-hook 'emacs-startup-hook
-            (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
-  (add-hook 'emacs-startup-hook
+(setq old-gc-cons-threshold gc-cons-threshold
+      gc-cons-threshold most-positive-fixnum)
+(add-hook 'emacs-startup-hook
+          (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
+(add-hook 'emacs-startup-hook
   	  (lambda ()
   	    (message "Ready for business. Startup in %s with %d gcs."
   		     (format "%.2f seconds"
@@ -90,14 +90,14 @@ Startup hook from https://config.daviwil.com/emacs
 
 Disable profiling when running with EMACS_PROFILE=true
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (when (string-equal (getenv "EMACS_PROFILE") "true")
-                (profiler-stop)
-                (let ((profiler-report-file (expand-file-name "profiler-report.txt" user-emacs-directory)))
-                  (with-current-buffer (profiler-report-cpu)
-                    (write-file profiler-report-file))
-                  (message "Profiler report saved to %s" profiler-report-file)))))
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (when (string-equal (getenv "EMACS_PROFILE") "true")
+              (profiler-stop)
+              (let ((profiler-report-file (expand-file-name "profiler-report.txt" user-emacs-directory)))
+                (with-current-buffer (profiler-report-cpu)
+                  (write-file profiler-report-file))
+                (message "Profiler report saved to %s" profiler-report-file)))))
 #+END_SRC
 
 *** straight.el
@@ -149,54 +149,54 @@ Don't allow cursor in minibuffer. Command completions excludes commands not avai
 **** Core
 The core code is unstructed in general, the rest of the packages use structured use-package calls.
 #+BEGIN_SRC emacs-lisp
-  (setq minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
-        read-extended-command-predicate #'command-completion-default-include-p
-        enable-recursive-minibuffers t
-        recentf-max-menu-items 100
-        recentf-max-saved-items 100)
+(setq minibuffer-prompt-properties '(read-only t cursor-intangible t face minibuffer-prompt)
+      read-extended-command-predicate #'command-completion-default-include-p
+      enable-recursive-minibuffers t
+      recentf-max-menu-items 100
+      recentf-max-saved-items 100)
 
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-  (savehist-mode)
-  (recentf-mode 1)
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
+(savehist-mode)
+(recentf-mode 1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
 #+END_SRC
 
 Clipboard integration, since I build Emacs without gui, interprogram vars call internal gui code. Configure to
 integrate with wl-clipboard. Selection in visual mode needs to be configured separately for the evil package.
 #+BEGIN_SRC emacs-lisp
-  ;; @TODO: hack because of how the emacs daemon is run
-  (setenv "WAYLAND_DISPLAY" "wayland-1")
-  (setq wl-copy-process nil)
-    (defun wl-copy (text)
-      (setq wl-copy-process (make-process :name "wl-copy"
-					  :buffer nil
-					  :command '("wl-copy" "--primary" "-n")
-					  :connection-type 'pipe))
-      (process-send-string wl-copy-process text)
-      (process-send-eof wl-copy-process))
-    (defun wl-paste ()
-      (if (and wl-copy-process (process-live-p wl-copy-process))
-	  nil ; should return nil if we're the current paste owner
-	(shell-command-to-string "wl-paste --primary -n | tr -d \r")))
-    (setq interprogram-cut-function 'wl-copy)
-    (setq interprogram-paste-function 'wl-paste) 
+;; @TODO: hack because of how the emacs daemon is run
+(setenv "WAYLAND_DISPLAY" "wayland-1")
+(setq wl-copy-process nil)
+(defun wl-copy (text)
+  (setq wl-copy-process (make-process :name "wl-copy"
+				      :buffer nil
+				      :command '("wl-copy" "--primary" "-n")
+				      :connection-type 'pipe))
+  (process-send-string wl-copy-process text)
+  (process-send-eof wl-copy-process))
+(defun wl-paste ()
+  (if (and wl-copy-process (process-live-p wl-copy-process))
+      nil ; should return nil if we're the current paste owner
+    (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
+(setq interprogram-cut-function 'wl-copy)
+(setq interprogram-paste-function 'wl-paste)
 #+END_SRC
 
 Line numbers
 #+BEGIN_SRC emacs-lisp
-  (setq display-line-numbers-type 'relative)
-  (global-display-line-numbers-mode 1)
-  (defun toggle-line-number-mode ()
-    "Toggle between relative and absolute line numbers."
-    (interactive)
-    (if (eq display-line-numbers-type 'relative)
-        (setq display-line-numbers-type 'absolute)
-      (setq display-line-numbers-type 'relative))
-    (if display-line-numbers
-        (display-line-numbers-mode 'toggle)
-      (display-line-numbers-mode 1)))
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode 1)
+(defun toggle-line-number-mode ()
+  "Toggle between relative and absolute line numbers."
+  (interactive)
+  (if (eq display-line-numbers-type 'relative)
+      (setq display-line-numbers-type 'absolute)
+    (setq display-line-numbers-type 'relative))
+  (if display-line-numbers
+      (display-line-numbers-mode 'toggle)
+    (display-line-numbers-mode 1)))
 #+END_SRC
 
 *** Infrastructure
@@ -215,66 +215,57 @@ This will install Doom Themes megapack, a collection of themes. And load the doo
 
 **** evil.el and evil-collections.el
 #+BEGIN_SRC emacs-lisp
-    (use-package evil
-      :init
-      (setq evil-want-integration t
-            evil-want-keybinding nil)
-      :config
-      (evil-mode 1)
-       (defun my-evil-visual-update-x-selection (orig-fun &rest args)
-         (when interprogram-cut-function
-           (funcall interprogram-cut-function
+(use-package evil
+  :init
+  (setq evil-want-integration t
+        evil-want-keybinding nil)
+  :config
+  (evil-mode 1)
+  (defun my-evil-visual-update-x-selection (orig-fun &rest args)
+    (when interprogram-cut-function
+      (funcall interprogram-cut-function
      	       (if (region-active-p)
      		   (buffer-substring-no-properties (region-beginning) (region-end))
      		 (car args))))
-           (apply orig-fun args))
-       (advice-add 'evil-visual-update-x-selection :around #'my-evil-visual-update-x-selection))
+    (apply orig-fun args))
+  (advice-add 'evil-visual-update-x-selection :around #'my-evil-visual-update-x-selection))
 #+END_SRC
 
 Depend on magit to configure evil for magit too
 #+BEGIN_SRC emacs-lisp
-  (use-package evil-collection
-    :after (evil magit)
-    :custom
-    (evil-collection-setup-minibuffer t)
-    :config
-    (evil-collection-init))
+(use-package evil-collection
+  :after (evil magit)
+  :custom
+  (evil-collection-setup-minibuffer t)
+  :config
+  (evil-collection-init))
 #+END_SRC
 
 **** general.el
 For easier key binding definitions.
 #+BEGIN_SRC emacs-lisp
-	(use-package general
-	  :after evil
-	  :config
-  )
+(use-package general
+  :after evil)
 #+END_SRC
 
 **** projectile.el
 #+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :after general
-    :config
-    (projectile-mode +1)
-    (leader-project-def
-      "a" 'projectile-add-known-project
-      "d" 'projectile-remove-known-project
-      "p" 'projectile-switch-project
-      "f" 'projectile-find-file
-      "i" 'projectile-invalidate-cache
-      "k" 'projectile-kill-buffer))
+(use-package projectile
+  :after general
+  :config
+  (projectile-mode +1))
 #+END_SRC
 
 **** doom-modeline.el
 Also make sure to load the modeline after projectile since it uses the projectile api.
 #+BEGIN_SRC emacs-lisp
-  (use-package doom-modeline
-    :custom
-    (doom-modeline-project-detection 'project)
-    (doom-modeline-buffer-file-name-style 'relative-to-project)
-    (doom-modeline-unicode-fallback t)
-    (doom-modeline-minor-modes nil)
-    :hook (after-init . doom-modeline-mode))
+(use-package doom-modeline
+  :custom
+  (doom-modeline-project-detection 'project)
+  (doom-modeline-buffer-file-name-style 'relative-to-project)
+  (doom-modeline-unicode-fallback t)
+  (doom-modeline-minor-modes nil)
+  :hook (after-init . doom-modeline-mode))
 #+END_SRC
 
 **** which-key.el
@@ -291,12 +282,8 @@ Since we're n00bs, we need to see the key options sometimes.
 
 **** magit.el and magit-todos.el and git-gutter.el
 #+BEGIN_SRC emacs-lisp
-    (use-package magit
-      :after evil
-      :config
-      (leader-scm-def
-        "s" 'magit-status
-        "t" 'magit-todos-list))
+(use-package magit
+  :after evil)
 #+END_SRC
 
 ToDo in project repositories
@@ -309,27 +296,27 @@ ToDo in project repositories
 
 Hilight where the file is changed in the fringes
 #+BEGIN_SRC emacs-lisp
-  (use-package git-gutter
-    :if (not (display-graphic-p))
-    :after magit
-    :custom
-    (git-gutter:window-width 1)
-    (git-gutter:added-sign "+")
-    (git-gutter:deleted-sign "-")
-    (git-gutter:modified-sign "=")
-    :config
-    (global-git-gutter-mode +1))
+(use-package git-gutter
+  :if (not (display-graphic-p))
+  :after magit
+  :custom
+  (git-gutter:window-width 1)
+  (git-gutter:added-sign "+")
+  (git-gutter:deleted-sign "-")
+  (git-gutter:modified-sign "=")
+  :config
+  (global-git-gutter-mode +1))
 #+END_SRC
 
 **** dashboard.el
 #+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :custom
-    (org-agenda-files '("/storage/src/unnsvc/org/general.org"))
-    (dashboard-startup-banner (expand-file-name "dashboard.txt" user-emacs-directory))
-    :config
-    ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
-    (dashboard-setup-startup-hook))
+(use-package dashboard
+  :custom
+  (org-agenda-files '("/storage/src/unnsvc/org/general.org"))
+  (dashboard-startup-banner (expand-file-name "dashboard.txt" user-emacs-directory))
+  :config
+  ;;(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+  (dashboard-setup-startup-hook))
 #+END_SRC
 
 **** lookup.el
@@ -337,29 +324,14 @@ Doom emacs seems to do a lot more, this doesn't seem to work in this config to l
 #+BEGIN_SRC emacs-lisp
 (use-package lookup
   :straight (lookup :type git :host github :repo "aaronjensen/emacs-lookup" :commit "6ffdb61ef7c70077dee45330d4444a0eec559e01")
-  :after general
-  :config
-  (leader-code-def
-    "h" #'+lookup/documentation))
+  :after general)
 #+END_SRC
 
 **** helpful.el
 More helpful help
 #+BEGIN_SRC emacs-lisp
-  (use-package helpful
-    :after general
-    :config
-
-    (leader-code-def
-     "d" #'helpful-at-point)
-
-    (leader-help-def
-     "k" #'helpful-key
-     "o" #'helpful-symbol
-     "v" #'helpful-variable
-     "x" #'helpful-command
-     "F" #'helpful-function
-     "f" #'helpful-callable))
+(use-package helpful
+  :after general)
 #+END_SRC
 
 *** Completions
@@ -372,29 +344,19 @@ More helpful help
 **** orderless.el
 Basically, we want to select items orderless instead of matching completions from beginning to end?
 #+BEGIN_SRC emacs-lisp
-  (use-package orderless
-    :after vertico
-    :init
-    (setq completion-styles '(orderless basic)
-          completion-category-defaults nil
-          completion-category-overrides '((file (styles partial-completion)))))
+(use-package orderless
+  :after vertico
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
 #+END_SRC
 **** consult.el and consult-flycheck.el
 #+BEGIN_SRC emacs-lisp
   (use-package consult
     :after general
-    :config
 
-    (leader-buffer-def
-     "b" #'consult-buffer)
-
-    (leader-file-def
-     "r" #'consult-recent-file)
-
-    ;; One-off to re-define keys in the stock C-x
-    (general-define-key
-     :prefix "C-x"
-     "b" #'consult-buffer))
+    )
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package consult-flycheck
@@ -441,16 +403,16 @@ Basically, we want to select items orderless instead of matching completions fro
 
 **** flycheck.el
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :custom
-    (flycheck-indication-mode 'right-fringe "Move the indicator to the right fringe to allow git-gutter")
-    :after lsp-mode
-    ;;:hook (lsp-mode . flycheck-mode)
-    :init
-    (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
-          flycheck-idle-change-delay 0.8)
-    :config
-    (global-flycheck-mode t))
+(use-package flycheck
+  :custom
+  (flycheck-indication-mode 'right-fringe "Move the indicator to the right fringe to allow git-gutter")
+  :after lsp-mode
+  ;;:hook (lsp-mode . flycheck-mode)
+  :init
+  (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
+        flycheck-idle-change-delay 0.8)
+  :config
+  (global-flycheck-mode t))
 #+END_SRC
 
 **** rainbow-delimiters.el
@@ -472,52 +434,52 @@ work on this, so you press "C-c '" again in that buffer to go back to org mode w
 **** utilify functions
 Common methods extracted from doom-modeline to show the current pyvenv environment.
 #+BEGIN_SRC emacs-lisp
-  (defun +modeline-update-env-in-all-windows-h (&rest _)
-    "Update version strings in all buffers."
-    (dolist (window (window-list))
-      (with-selected-window window
-        (when (fboundp 'doom-modeline-update-env)
-          (doom-modeline-update-env))
-        (force-mode-line-update))))
+(defun +modeline-update-env-in-all-windows-h (&rest _)
+  "Update version strings in all buffers."
+  (dolist (window (window-list))
+    (with-selected-window window
+      (when (fboundp 'doom-modeline-update-env)
+        (doom-modeline-update-env))
+      (force-mode-line-update))))
 
-  (defun +modeline-clear-env-in-all-windows-h (&rest _)
-    "Blank out version strings in all buffers."
-      (dolist (buffer (buffer-list))
-        (with-current-buffer buffer
-          (setq doom-modeline-env--version
-                (bound-and-true-p doom-modeline-load-string))))
-    (force-mode-line-update t))
+(defun +modeline-clear-env-in-all-windows-h (&rest _)
+  "Blank out version strings in all buffers."
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (setq doom-modeline-env--version
+            (bound-and-true-p doom-modeline-load-string))))
+  (force-mode-line-update t))
 #+END_SRC
 
 *** Python Mode
 **** python.el
 Is provided by emacs, so ensure nil
 #+BEGIN_SRC emacs-lisp
-  (defun setup-python-mode-keybindings()
-    (leader-mode-def
-      :keymaps 'python-mode-map
-      "s" '(:ignore t :which-key "REPL")
-      ;; REPL
-      "s r" '(python-shell-send-region :which-key "send region")
-      "s b" '(python-shell-send-buffer :which-key "send buffer")
-      "s f" '(python-shell-send-file :which-key "send file")))
-  
-  (use-package python
-    :mode ("[./]pyproject.toml\\'" . conf-mode)
-    :after (general projectile lsp-mode flycheck)
-    :hook (python-mode . lsp-deferred)
-    :hook (python-mode . #'setup-python-mode-keybindings)
-    :custom
-    (python-indent-guess-indent-offset-verbose nil "Don't emit warning when indent guessing fails")
-    :config
-    (when (and (executable-find "python3")
-               (string= python-shell-interpreter "python"))
-      (setq python-shell-interpreter "python3"))
+(defun setup-python-mode-keybindings()
+  (leader-mode-def
+   :keymaps 'python-mode-map
+   "s" '(:ignore t :which-key "REPL")
+   ;; REPL
+   "s r" '(python-shell-send-region :which-key "send region")
+   "s b" '(python-shell-send-buffer :which-key "send buffer")
+   "s f" '(python-shell-send-file :which-key "send file")))
 
-    (add-hook 'python-mode-hook
-              (defun +python-use-correct-flycheck-executables-h ()
-                "Use the correct Python executables for Flycheck."
-                (let ((executable python-shell-interpreter))
+(use-package python
+  :mode ("[./]pyproject.toml\\'" . conf-mode)
+  :after (general projectile lsp-mode flycheck)
+  :hook (python-mode . lsp-deferred)
+  :hook (python-mode . #'setup-python-mode-keybindings)
+  :custom
+  (python-indent-guess-indent-offset-verbose nil "Don't emit warning when indent guessing fails")
+  :config
+  (when (and (executable-find "python3")
+             (string= python-shell-interpreter "python"))
+    (setq python-shell-interpreter "python3"))
+
+  (add-hook 'python-mode-hook
+            (defun +python-use-correct-flycheck-executables-h ()
+              "Use the correct Python executables for Flycheck."
+              (let ((executable python-shell-interpreter))
           	(save-excursion
           	  (goto-char (point-min))
           	  (save-match-data
@@ -552,58 +514,58 @@ Needs to be configured this way for some reason, as setting :hook doesn't work
 Needs to be configured this way for some reason as setting :hook or :after pyvenv
 doesn't activate poetry-tracking-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package poetry
-    :after (python pyvenv)
-    :custom
-    (poetry-tracking-strategy 'switch-buffer)
-    :init
-    (add-hook 'python-mode-hook #'poetry-tracking-mode)
-    :config
-    (leader-mode-def
-      :keymaps 'python-mode-map
-      "p" '(:ignore t :which-key "poetry")
-      "p p" #'poetry))
+(use-package poetry
+  :after (python pyvenv)
+  :custom
+  (poetry-tracking-strategy 'switch-buffer)
+  :init
+  (add-hook 'python-mode-hook #'poetry-tracking-mode)
+  :config
+  (leader-mode-def
+   :keymaps 'python-mode-map
+   "p" '(:ignore t :which-key "poetry")
+   "p p" #'poetry))
 #+END_SRC
 
 **** pytest.el
 #+BEGIN_SRC emacs-lisp
-  (use-package pytest
-    :after python
-    :config
-  
-    (leader-mode-def
-     :keymaps 'python-mode-map
-     "t" '(:ignore t :which-key "pytest")
-     ;; Testing
-     "t a" #'pytest-all
-     "t m" #'pytest-module
-     "t c" #'pytest-one
-     "t r" #'pytest-again
-     "t d" #'pytest-directory))
+(use-package pytest
+  :after python
+  :config
+
+  (leader-mode-def
+   :keymaps 'python-mode-map
+   "t" '(:ignore t :which-key "pytest")
+   ;; Testing
+   "t a" #'pytest-all
+   "t m" #'pytest-module
+   "t c" #'pytest-one
+   "t r" #'pytest-again
+   "t d" #'pytest-directory))
 #+END_SRC
 
 *** Rust Mode
 **** rustic.el
 #+BEGIN_SRC emacs-lisp
-  (use-package rustic
-    :after (flycheck org lsp-mode rainbow-delimiters)
-    :mode ("\\.rs$" . rustic-mode)
-    :mode ("^Cargo\\.toml$" . rustic-mode)
-    :preface
-    (setq rustic-lsp-client nil)
-    (with-eval-after-load 'rustic-lsp-client
-      (remove-hook 'rustic-mode-hook 'rustic-setup-lsp))
-    (with-eval-after-load 'rustic-flycheck
-      (remove-hook 'rustic-mode-hook #'flycheck-mode)
-      (remove-hook 'rustic-mode-hook #'flycheck-mode-off)
-      (remove-hook 'flycheck-mode-hook #'rustic-flycheck-setup))
-    (add-hook 'rustic-mode-hook #'rainbow-delimiters-mode)
-    (setq rustic-indent-method-chain t)
-    (setq rust-prettify-symbols-alist nil)
-    (setq rustic-babel-format-src-block nil
+(use-package rustic
+  :after (flycheck org lsp-mode rainbow-delimiters)
+  :mode ("\\.rs$" . rustic-mode)
+  :mode ("^Cargo\\.toml$" . rustic-mode)
+  :preface
+  (setq rustic-lsp-client nil)
+  (with-eval-after-load 'rustic-lsp-client
+    (remove-hook 'rustic-mode-hook 'rustic-setup-lsp))
+  (with-eval-after-load 'rustic-flycheck
+    (remove-hook 'rustic-mode-hook #'flycheck-mode)
+    (remove-hook 'rustic-mode-hook #'flycheck-mode-off)
+    (remove-hook 'flycheck-mode-hook #'rustic-flycheck-setup))
+  (add-hook 'rustic-mode-hook #'rainbow-delimiters-mode)
+  (setq rustic-indent-method-chain t)
+  (setq rust-prettify-symbols-alist nil)
+  (setq rustic-babel-format-src-block nil
   	rustic-format-trigger nil)
-    (setq rustic-lsp-client 'lsp-mode)
-    (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append))
+  (setq rustic-lsp-client 'lsp-mode)
+  (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append))
 #+END_SRC
 
 *** Geiser Mode
@@ -619,28 +581,28 @@ The Scheme will be configured for GNU Guix specifically, loading all the operati
 Configure geiser-guile.el to load a separate initialization file for the REPL, this will set up the the GNU Guix system inside the REPL
 to have access to all Guix System symbols and navigate the source code.
 #+BEGIN_SRC emacs-lisp
-  (use-package geiser-guile
-    :after geiser
-    :init
-    (setq geiser-guile-init-file (expand-file-name "guile/init.scm" user-emacs-directory)
-          geiser-guile-extra-keywords '("use-modules" "home-environment" "operating-system" "use-service-modules" "use-package-modules"))
-    :config
-    (define-key scheme-mode-map (kbd "RET") nil)
-    (leader-mode-def
-      :keymaps 'scheme-mode-map
-      "s" 'geiser-set-scheme
-      "r" 'geiser-mode-switch-to-repl
-      "m" 'geiser-mode-switch-to-repl-and-enter
-      "." 'geiser-edit-symbol-at-point
-      "," 'geiser-pop-symbol-stack
-      "M-TAB" 'completion-at-point
-      "c" 'geiser-repl-clear-buffer
-      "i" 'geiser-eval-interrupt
-      "e" 'geiser-eval-definition
-      "r" 'geiser-eval-region
-      "b" 'geiser-eval-buffer
-      "<" 'geiser-xref-callees
-      ">" 'geiser-xref-callers))
+(use-package geiser-guile
+  :after geiser
+  :init
+  (setq geiser-guile-init-file (expand-file-name "guile/init.scm" user-emacs-directory)
+        geiser-guile-extra-keywords '("use-modules" "home-environment" "operating-system" "use-service-modules" "use-package-modules"))
+  :config
+  (define-key scheme-mode-map (kbd "RET") nil)
+  (leader-mode-def
+   :keymaps 'scheme-mode-map
+   "s" 'geiser-set-scheme
+   "r" 'geiser-mode-switch-to-repl
+   "m" 'geiser-mode-switch-to-repl-and-enter
+   "." 'geiser-edit-symbol-at-point
+   "," 'geiser-pop-symbol-stack
+   "M-TAB" 'completion-at-point
+   "c" 'geiser-repl-clear-buffer
+   "i" 'geiser-eval-interrupt
+   "e" 'geiser-eval-definition
+   "r" 'geiser-eval-region
+   "b" 'geiser-eval-buffer
+   "<" 'geiser-xref-callees
+   ">" 'geiser-xref-callers))
 #+END_SRC
 
 *** Org Mode
@@ -690,42 +652,42 @@ This procedure will search for a block that begins with: '#+BEGIN: toc headlines
 and ends with '#+END: toc', and insert a ToC as its content, replacing the old content.
 
 #+BEGIN_SRC emacs-lisp
-  (defun insert-org-mode-toc ()
-    (interactive)
-    (let ((toc-begin-re "# BEGIN_TOC \\([0-9]+\\)")
-  	(toc-end-re "# END_TOC")
-  	(headlines '())
-  	(current-section-numbers ()))
-      (save-excursion
-        (goto-char (point-min))
-        (if (re-search-forward toc-begin-re nil t)
-  	  (let ((max-level (string-to-number (match-string 1)))
-  		(toc-begin-pos (match-end 0))
-  		(toc-end-pos (if (re-search-forward toc-end-re nil t)
-  				 (match-beginning 0)
-  			       nil)))
-  	    (goto-char (point-min))
-  	    (while (re-search-forward "^\\(*+\\) \\(.*\\)" nil t)
-  	      (let* ((level (length (match-string 1)))
-  		     (headline (match-string 2))
-  		     (section-number (if (> level (length current-section-numbers))
-  					 (progn
-  					   (setq current-section-numbers (append current-section-numbers (list 1)))
-  					   (mapconcat 'number-to-string current-section-numbers "."))
-  				       (progn
-  					 (setcar (nthcdr (- level 1) current-section-numbers)
-  						 (+ 1 (nth (- level 1) current-section-numbers)))
-  					 (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
-  					 (mapconcat 'number-to-string current-section-numbers "."))))
-  		     (anchor (replace-regexp-in-string " " "-" (downcase (replace-regexp-in-string "[^a-zA-Z0-9 -]" "" headline)))))
+(defun insert-org-mode-toc ()
+  (interactive)
+  (let ((toc-begin-re "# BEGIN_TOC \\([0-9]+\\)")
+        (toc-end-re "# END_TOC")
+        (headlines '())
+        (current-section-numbers ()))
+    (save-excursion
+      (goto-char (point-min))
+      (if (re-search-forward toc-begin-re nil t)
+          (let ((max-level (string-to-number (match-string 1)))
+                (toc-begin-pos (match-end 0))
+                (toc-end-pos (if (re-search-forward toc-end-re nil t)
+                                 (match-beginning 0)
+                               nil)))
+            (goto-char (point-min))
+            (while (re-search-forward "^\\(*+\\) \\(.*\\)" nil t)
+              (let* ((level (length (match-string 1)))
+                     (headline (match-string 2))
+                     (section-number (if (> level (length current-section-numbers))
+                                         (progn
+                                           (setq current-section-numbers (append current-section-numbers (list 1)))
+                                           (mapconcat 'number-to-string current-section-numbers "."))
+                                       (progn
+                                         (setcar (nthcdr (- level 1) current-section-numbers)
+                                                 (+ 1 (nth (- level 1) current-section-numbers)))
+                                         (setq current-section-numbers (cl-subseq current-section-numbers 0 level))
+                                         (mapconcat 'number-to-string current-section-numbers "."))))
+                     (anchor (replace-regexp-in-string " " "-" (downcase (replace-regexp-in-string "[^a-zA-Z0-9 -]" "" headline)))))
 
-  		(when (<= level max-level)
-  		  (push (format "- %s [[*%s][%s]]" section-number anchor headline) headlines))))
-  	    (when toc-end-pos
-  	      (goto-char toc-begin-pos)
-  	      (delete-region toc-begin-pos toc-end-pos)
-  	      (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
-  	        (message "Warning: No # BEGIN_TOC block found.")))))
+                (when (<= level max-level)
+                  (push (format "- %s [[*%s][%s]]" section-number anchor headline) headlines))))
+            (when toc-end-pos
+              (goto-char toc-begin-pos)
+              (delete-region toc-begin-pos toc-end-pos)
+              (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
+        (message "Warning: No # BEGIN_TOC block found.")))))
 #+END_SRC
 *** YAML Mode
 #+BEGIN_SRC emacs-lisp
@@ -765,8 +727,8 @@ agi.yaml file in any of the parent directories of the opened buffer.
         (with-temp-buffer
           (insert-file-contents agi-yaml-path)
           (yaml-parse-string (buffer-string)
-             		   :object-type 'alist
-             		   :sequence-type 'list)))))
+                             :object-type 'alist
+                             :sequence-type 'list)))))
 
   (defun agi-command-func-generator (executable args)
     "Return a function that when called, will execute the specified EXECUTABLE with the specified ARGS."
@@ -786,9 +748,9 @@ agi.yaml file in any of the parent directories of the opened buffer.
             (let ((func (agi-command-func-generator executable arguments)))
               (fset (intern (concat "agi-command-" name)) func)
               (leader-mode-def
-                :prefix "C-m"
-                :keymaps 'agi-mode-map
-                (format "a %d" counter) (intern (concat "agi-command-" name)))
+               :prefix "C-m"
+               :keymaps 'agi-mode-map
+               (format "a %d" counter) (intern (concat "agi-command-" name)))
               (message "Setting up command: %s" name))
             (setq counter (1+ counter)))))))
 
@@ -807,100 +769,150 @@ agi.yaml file in any of the parent directories of the opened buffer.
 #+END_SRC
 
 ** Key Bindings
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
+:END:
+
 The key bindings package is a meta-package without a file. This will depend on all packages that provide key bindings to collect the bindings in one place, here.
 
 #+BEGIN_SRC emacs-lisp
-	(use-package keybindings
-	  :ensure nil
-	  :straight nil
-	  :after straight
-	  :config
-	  (message "test")
+(add-to-list 'straight-built-in-pseudo-packages 'keybindings)
+(use-package keybindings
+  ;;:ensure nil
+  ;;:straight nil
+  :no-require t
+  ;;:straight (:type built-in)
+  :after (straight projectile magit lookup helpful consult)
+  :config
+  (message "test")
+
+  ;; Buffer-specific bindings
+  (general-create-definer leader-buffer-def
+    :prefix "C-b"
+    :states '(normal visual))
+
+  ;; Code specific map
+  (general-create-definer leader-code-def
+    :prefix "C-c"
+    :states '(normal visual))
+
+  ;; General emacs commands such as edit config files
+  (general-create-definer leader-emacs-def
+    :prefix "C-e"
+    :states '(normal visual))
+
+  ;; File-specific bindings
+  (general-create-definer leader-file-def
+    :prefix "C-f"
+    :states '(normal visual))
+
+  ;; Source control commands
+  (general-create-definer leader-scm-def
+    :prefix "C-g"
+    :states '(normal visual))
+
+  ;; Various help and information
+  (general-create-definer leader-help-def
+    :prefix "C-h"
+    :states '(normal visual))
+
+  ;; Major-mode-specific bindings
+  (general-create-definer leader-mode-def
+    :prefix "C-c"
+    :states '(normal visual))
+
+  ;; Project-specific bindings
+  (general-create-definer leader-project-def
+    :keymaps 'projectile-mode-map
+    :prefix "C-p"
+    :states '(normal visual))
+
+  ;; Already bound so unbind from various built in packages and evil.el, this
+  ;; causes an error during startup where it says that "C-t is not a leader key".
+  ;; Unbind all
+  (define-key global-map (kbd "C-t") nil)
+  (define-key evil-normal-state-map (kbd "C-t") nil)
+  (define-key evil-insert-state-map (kbd "C-t") nil)
+  (general-create-definer leader-toggle-def
+    :prefix "C-t"
+    :states '(normal insert visual))
+
+  ;; Window bindings
+  (general-create-definer leader-window-def
+    :prefix "C-w"
+    :states '(normal visual))
+
+  (leader-file-def
+   "f" 'find-file)
+
+  (leader-emacs-def
+   "c" '(lambda ()
+	  (interactive)
+	  (find-file (expand-file-name "README.org" user-emacs-directory))))
+
+  (leader-code-def
+   "n" 'flycheck-next-error
+   "p" 'flycheck-previous-error
+   "l" 'flycheck-list-errors)
+
+  (leader-buffer-def
+   "d" 'kill-current-buffer)
+
+  (leader-toggle-def
+   "l" 'toggle-line-number-mode)
+
+  (leader-mode-def
+   :prefix "C-m"
+   :keymaps 'smerge-mode-map
+   "n" 'smerge-next
+   "p" 'smerge-prev
+   "d" 'smerge-diff-base
+   "u" 'smerge-keep-upper
+   "l" 'smerge-keep-lower)
 
 
-	  ;; Buffer-specific bindings
-	  (general-create-definer leader-buffer-def
-	    :prefix "C-b"
-	    :states '(normal visual))
+  ;; Projectile
+  (leader-project-def
+   "a" 'projectile-add-known-project
+   "d" 'projectile-remove-known-project
+   "p" 'projectile-switch-project
+   "f" 'projectile-find-file
+   "i" 'projectile-invalidate-cache
+   "k" 'projectile-kill-buffer)
 
-	  ;; Code specific map
-	  (general-create-definer leader-code-def
-	    :prefix "C-c"
-	    :states '(normal visual))
+  (leader-scm-def
+   "s" 'magit-status
+   "t" 'magit-todos-list)
 
-	  ;; General emacs commands such as edit config files
-	  (general-create-definer leader-emacs-def
-	    :prefix "C-e"
-	    :states '(normal visual))
+  ;; lookup
+  (leader-code-def
+   "h" #'+lookup/documentation)
 
-	  ;; File-specific bindings
-	  (general-create-definer leader-file-def
-	    :prefix "C-f"
-	    :states '(normal visual))
+  ;; helpful
+  (leader-code-def
+   "d" #'helpful-at-point)
 
-	  ;; Source control commands
-	  (general-create-definer leader-scm-def
-	    :prefix "C-g"
-	    :states '(normal visual))
+  (leader-help-def
+   "k" #'helpful-key
+   "o" #'helpful-symbol
+   "v" #'helpful-variable
+   "x" #'helpful-command
+   "F" #'helpful-function
+   "f" #'helpful-callable)
 
-	  ;; Various help and information
-	  (general-create-definer leader-help-def
-	    :prefix "C-h"
-	    :states '(normal visual))
 
-	  ;; Major-mode-specific bindings
-	  (general-create-definer leader-mode-def
-	    :prefix "C-c"
-	    :states '(normal visual))
+  ;; consult
+  (leader-buffer-def
+   "b" #'consult-buffer)
 
-	  ;; Project-specific bindings
-	  (general-create-definer leader-project-def
-	    :keymaps 'projectile-mode-map
-	    :prefix "C-p"
-	    :states '(normal visual))
+  (leader-file-def
+   "r" #'consult-recent-file)
 
-	  ;; Already bound so unbind from various built in packages and evil.el, this
-	  ;; causes an error during startup where it says that "C-t is not a leader key".
-	  ;; Unbind all
-	  (define-key global-map (kbd "C-t") nil)
-	  (define-key evil-normal-state-map (kbd "C-t") nil)
-	  (define-key evil-insert-state-map (kbd "C-t") nil)
-	  (general-create-definer leader-toggle-def
-	    :prefix "C-t"
-	    :states '(normal insert visual))
+  ;; One-off to re-define keys in the stock C-x
+  (general-define-key
+   :prefix "C-x"
+   "b" #'consult-buffer)
 
-	  ;; Window bindings
-	  (general-create-definer leader-window-def
-	    :prefix "C-w"
-	    :states '(normal visual))
-
-	  (leader-file-def
-	    "f" 'find-file)
-
-	  (leader-emacs-def
-	    "c" '(lambda ()
-		   (interactive)
-		   (find-file (expand-file-name "README.org" user-emacs-directory))))
-
-	  (leader-code-def
-	    "n" 'flycheck-next-error
-	    "p" 'flycheck-previous-error
-	    "l" 'flycheck-list-errors)
-
-	  (leader-buffer-def
-	    "d" 'kill-current-buffer)
-
-	  (leader-toggle-def
-	    "l" 'toggle-line-number-mode)
-
-	  (leader-mode-def
-	    :prefix "C-m"
-	    :keymaps 'smerge-mode-map
-	    "n" 'smerge-next
-	    "p" 'smerge-prev
-	    "d" 'smerge-diff-base
-	    "u" 'smerge-keep-upper
-	    "l" 'smerge-keep-lower)
 
   )
 #+END_SRC
