@@ -23,12 +23,15 @@
 - 1.2 [[*initialization-initel][Initialization (init.el)]]
 - 1.2.2 [[*infrastructure][Infrastructure]]
 - 1.2.3 [[*completions][Completions]]
-- 1.2.4 [[*languages-common][Languages Common]]
-- 1.2.5 [[*python-mode][Python Mode]]
-- 1.2.6 [[*rust-mode][Rust Mode]]
-- 1.2.7 [[*org-mode][Org Mode]]
-- 1.2.8 [[*yaml-mode][YAML Mode]]
-- 1.2.9 [[*agi-mode][AGI Mode]]
+- 1.3 [[*languages][Languages]]
+- 1.3.1 [[*languages-common][Languages Common]]
+- 1.3.2 [[*python-mode][Python Mode]]
+- 1.3.3 [[*rust-mode][Rust Mode]]
+- 1.3.4 [[*geiser-mode][Geiser Mode]]
+- 1.3.5 [[*org-mode][Org Mode]]
+- 1.3.6 [[*yaml-mode][YAML Mode]]
+- 1.3.7 [[*agi-mode][AGI Mode]]
+- 1.4 [[*key-bindings][Key Bindings]]
 - 2 [[*on-save-readmeorg][On save (README.org)]]
 # END_TOC
 
@@ -163,20 +166,22 @@ The core code is unstructed in general, the rest of the packages use structured 
 Clipboard integration, since I build Emacs without gui, interprogram vars call internal gui code. Configure to
 integrate with wl-clipboard. Selection in visual mode needs to be configured separately for the evil package.
 #+BEGIN_SRC emacs-lisp
-(setq wl-copy-process nil)
-(defun wl-copy (text)
-  (setq wl-copy-process (make-process :name "wl-copy"
-                                      :buffer nil
-                                      :command '("wl-copy" "--primary" "-n")
-                                      :connection-type 'pipe))
-  (process-send-string wl-copy-process text)
-  (process-send-eof wl-copy-process))
-(defun wl-paste ()
-  (if (and wl-copy-process (process-live-p wl-copy-process))
-      nil ; should return nil if we're the current paste owner
-    (shell-command-to-string "wl-paste --primary -n | tr -d \r")))
-(setq interprogram-cut-function 'wl-copy)
-(setq interprogram-paste-function 'wl-paste)
+  ;; @TODO: hack because of how the emacs daemon is run
+  (setenv "WAYLAND_DISPLAY" "wayland-1")
+  (setq wl-copy-process nil)
+    (defun wl-copy (text)
+      (setq wl-copy-process (make-process :name "wl-copy"
+					  :buffer nil
+					  :command '("wl-copy" "--primary" "-n")
+					  :connection-type 'pipe))
+      (process-send-string wl-copy-process text)
+      (process-send-eof wl-copy-process))
+    (defun wl-paste ()
+      (if (and wl-copy-process (process-live-p wl-copy-process))
+	  nil ; should return nil if we're the current paste owner
+	(shell-command-to-string "wl-paste --primary -n | tr -d \r")))
+    (setq interprogram-cut-function 'wl-copy)
+    (setq interprogram-paste-function 'wl-paste) 
 #+END_SRC
 
 Line numbers
@@ -239,93 +244,10 @@ Depend on magit to configure evil for magit too
 **** general.el
 For easier key binding definitions.
 #+BEGIN_SRC emacs-lisp
-  (use-package general
-    :after evil
-    :config
-
-    ;; Buffer-specific bindings
-    (general-create-definer leader-buffer-def
-      :prefix "C-b"
-      :states '(normal visual))
-
-    ;; Code specific map
-    (general-create-definer leader-code-def
-      :prefix "C-c"
-      :states '(normal visual))
-
-    ;; General emacs commands such as edit config files
-    (general-create-definer leader-emacs-def
-      :prefix "C-e"
-      :states '(normal visual))
-
-    ;; File-specific bindings
-    (general-create-definer leader-file-def
-      :prefix "C-f"
-      :states '(normal visual))
-
-    ;; Source control commands
-    (general-create-definer leader-scm-def
-      :prefix "C-g"
-      :states '(normal visual))
-
-    ;; Various help and information
-    (general-create-definer leader-help-def
-      :prefix "C-h"
-      :states '(normal visual))
-
-    ;; Major-mode-specific bindings
-    (general-create-definer leader-mode-def
-      :prefix "C-m"
-      :states '(normal visual))
-
-    ;; Project-specific bindings
-    (general-create-definer leader-project-def
-      :keymaps 'projectile-mode-map
-      :prefix "C-p"
-      :states '(normal visual))
-
-    ;; Already bound so unbind from various built in packages and evil.el, this
-    ;; causes an error during startup where it says that "C-t is not a leader key".
-    ;; Unbind all
-    (define-key global-map (kbd "C-t") nil)
-    (define-key evil-normal-state-map (kbd "C-t") nil)
-    (define-key evil-insert-state-map (kbd "C-t") nil)
-    (general-create-definer leader-toggle-def
-      :prefix "C-t"
-      :states '(normal insert visual))
-
-    ;; Window bindings
-    (general-create-definer leader-window-def
-      :prefix "C-w"
-      :states '(normal visual))
-
-    (leader-file-def
-      "f" 'find-file)
-
-    (leader-emacs-def
-      "c" '(lambda ()
-             (interactive)
-             (find-file (expand-file-name "README.org" user-emacs-directory))))
-
-    (leader-code-def
-      "n" 'flycheck-next-error
-      "p" 'flycheck-previous-error
-      "l" 'flycheck-list-errors)
-
-    (leader-buffer-def
-      "d" 'kill-current-buffer)
-
-    (leader-toggle-def
-      "l" 'toggle-line-number-mode)
-
-    (leader-mode-def
-      :prefix "C-m"
-      :keymaps 'smerge-mode-map
-      "n" 'smerge-next
-      "p" 'smerge-prev
-      "d" 'smerge-diff-base
-      "u" 'smerge-keep-upper
-      "l" 'smerge-keep-lower))
+	(use-package general
+	  :after evil
+	  :config
+  )
 #+END_SRC
 
 **** projectile.el
@@ -479,6 +401,7 @@ Basically, we want to select items orderless instead of matching completions fro
   :after (consult flycheck))
 #+END_SRC
 
+** Languages
 *** Languages Common
 **** lsp-mode.el and lsp-ui.el
 #+BEGIN_SRC emacs-lisp
@@ -683,6 +606,43 @@ doesn't activate poetry-tracking-mode
     (add-hook 'rustic-mode-local-vars-hook #'rustic-setup-lsp 'append))
 #+END_SRC
 
+*** Geiser Mode
+The Scheme will be configured for GNU Guix specifically, loading all the operating system definitions for the REPL.
+**** geiser.el
+#+BEGIN_SRC emacs-lisp
+  (use-package geiser
+    :custom
+    (geiser-active-implementations '(guile)))
+#+END_SRC
+
+**** geiser-guile.el
+Configure geiser-guile.el to load a separate initialization file for the REPL, this will set up the the GNU Guix system inside the REPL
+to have access to all Guix System symbols and navigate the source code.
+#+BEGIN_SRC emacs-lisp
+  (use-package geiser-guile
+    :after geiser
+    :init
+    (setq geiser-guile-init-file (expand-file-name "guile/init.scm" user-emacs-directory)
+          geiser-guile-extra-keywords '("use-modules" "home-environment" "operating-system" "use-service-modules" "use-package-modules"))
+    :config
+    (define-key scheme-mode-map (kbd "RET") nil)
+    (leader-mode-def
+      :keymaps 'scheme-mode-map
+      "s" 'geiser-set-scheme
+      "r" 'geiser-mode-switch-to-repl
+      "m" 'geiser-mode-switch-to-repl-and-enter
+      "." 'geiser-edit-symbol-at-point
+      "," 'geiser-pop-symbol-stack
+      "M-TAB" 'completion-at-point
+      "c" 'geiser-repl-clear-buffer
+      "i" 'geiser-eval-interrupt
+      "e" 'geiser-eval-definition
+      "r" 'geiser-eval-region
+      "b" 'geiser-eval-buffer
+      "<" 'geiser-xref-callees
+      ">" 'geiser-xref-callers))
+#+END_SRC
+
 *** Org Mode
 **** org.el
     #+BEGIN_SRC emacs-lisp
@@ -846,41 +806,104 @@ agi.yaml file in any of the parent directories of the opened buffer.
   (add-hook 'find-file-hook 'agi-mode-maybe-activate)
 #+END_SRC
 
-#+BEGIN_COMMENT
-Initial attempts to create a custom modeline item failed, it seems to require creating a segment with doom-modeline-def-modeline and
-then adding it to a modeline with doom-modeline-def-modeline, the thing is that the entire modeline with all segments seemt to be
-required for the list, and it looks like doom-modeline defines several modelines 'main 'media 'pdf 'dired etc. which are displayed
-for major modes?
+** Key Bindings
+The key bindings package is a meta-package without a file. This will depend on all packages that provide key bindings to collect the bindings in one place, here.
 
-But I want to just add a minor mode segment and idk where to add it, nothing that I've tried seems to work.
+#+BEGIN_SRC emacs-lisp
+	(use-package keybindings
+	  :ensure nil
+	  :straight nil
+	  :after straight
+	  :config
+	  (message "test")
 
-    ;; (defun +agi-mode-icon ()
-    ;;   (lambda ()
-    ;;     (when (bound-and-true-p agi-mode)
-    ;; 	"🤖")))
-    ;; ;; ;; define segment
-    ;; (doom-modeline-def-segment agi-mode-segment
-    ;;   (+agi-mode-icon))
 
-    ;; ;; ;; define new modeline configuration
-    ;; (doom-modeline-def-modeline 'main
-    ;;   ;; left part
-    ;;   '(eldoc bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
-    ;;   ;; right part
-    ;;   (compilation objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker time agi-mode-segment) )
+	  ;; Buffer-specific bindings
+	  (general-create-definer leader-buffer-def
+	    :prefix "C-b"
+	    :states '(normal visual))
 
-    ;;  ;;(defun +agi-modeline-setup-modeline-a () (
-    ;;  (doom-modeline-set-modeline 'agi-modeline)))
-    ;;(advice-add #'doom-modeline-auto-set-modeline :override #'+agi-modeline-setup-modeline-a)
-    
-    ;;:hook
-    ;;(doom-modeline-mode . (lambda ()
-    ;;                         (doom-modeline-set-modeline 'main 'default)))
-    ;;(add-hook 'doom-modeline-mode-hook
-    ;;          (lambda ()
-    ;;            (doom-modeline-set-modeline 'agi-modeline 'default)))
-    )
-#+END_COMMENT
+	  ;; Code specific map
+	  (general-create-definer leader-code-def
+	    :prefix "C-c"
+	    :states '(normal visual))
+
+	  ;; General emacs commands such as edit config files
+	  (general-create-definer leader-emacs-def
+	    :prefix "C-e"
+	    :states '(normal visual))
+
+	  ;; File-specific bindings
+	  (general-create-definer leader-file-def
+	    :prefix "C-f"
+	    :states '(normal visual))
+
+	  ;; Source control commands
+	  (general-create-definer leader-scm-def
+	    :prefix "C-g"
+	    :states '(normal visual))
+
+	  ;; Various help and information
+	  (general-create-definer leader-help-def
+	    :prefix "C-h"
+	    :states '(normal visual))
+
+	  ;; Major-mode-specific bindings
+	  (general-create-definer leader-mode-def
+	    :prefix "C-c"
+	    :states '(normal visual))
+
+	  ;; Project-specific bindings
+	  (general-create-definer leader-project-def
+	    :keymaps 'projectile-mode-map
+	    :prefix "C-p"
+	    :states '(normal visual))
+
+	  ;; Already bound so unbind from various built in packages and evil.el, this
+	  ;; causes an error during startup where it says that "C-t is not a leader key".
+	  ;; Unbind all
+	  (define-key global-map (kbd "C-t") nil)
+	  (define-key evil-normal-state-map (kbd "C-t") nil)
+	  (define-key evil-insert-state-map (kbd "C-t") nil)
+	  (general-create-definer leader-toggle-def
+	    :prefix "C-t"
+	    :states '(normal insert visual))
+
+	  ;; Window bindings
+	  (general-create-definer leader-window-def
+	    :prefix "C-w"
+	    :states '(normal visual))
+
+	  (leader-file-def
+	    "f" 'find-file)
+
+	  (leader-emacs-def
+	    "c" '(lambda ()
+		   (interactive)
+		   (find-file (expand-file-name "README.org" user-emacs-directory))))
+
+	  (leader-code-def
+	    "n" 'flycheck-next-error
+	    "p" 'flycheck-previous-error
+	    "l" 'flycheck-list-errors)
+
+	  (leader-buffer-def
+	    "d" 'kill-current-buffer)
+
+	  (leader-toggle-def
+	    "l" 'toggle-line-number-mode)
+
+	  (leader-mode-def
+	    :prefix "C-m"
+	    :keymaps 'smerge-mode-map
+	    "n" 'smerge-next
+	    "p" 'smerge-prev
+	    "d" 'smerge-diff-base
+	    "u" 'smerge-keep-upper
+	    "l" 'smerge-keep-lower)
+
+  )
+#+END_SRC
 
 * On save (README.org)
 :PROPERTIES:

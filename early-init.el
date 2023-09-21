@@ -13,12 +13,12 @@
 (add-hook 'emacs-startup-hook
           (lambda () (setq gc-cons-threshold old-gc-cons-threshold)))
 (add-hook 'emacs-startup-hook
-	  (lambda ()
-	    (message "Ready for business. Startup in %s with %d gcs."
-		     (format "%.2f seconds"
-			     (float-time
-			      (time-subtract after-init-time before-init-time)))
-		     gcs-done)))
+  	(lambda ()
+  	  (message "Ready for business. Startup in %s with %d gcs."
+  		   (format "%.2f seconds"
+  			   (float-time
+  			    (time-subtract after-init-time before-init-time)))
+  		   gcs-done)))
 
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -46,7 +46,7 @@
   (load bootstrap-file nil 'nomessage))
 
 (font-lock-add-keywords 'emacs-lisp-mode
-			'(("(\\(straight-use-package\\)\\_>"
+  		      '(("(\\(straight-use-package\\)\\_>"
                            (1 'font-lock-keyword-face))))
 
 (straight-use-package 'use-package)
