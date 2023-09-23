@@ -245,15 +245,105 @@ Depend on magit to configure evil for magit too
 For easier key binding definitions.
 #+BEGIN_SRC emacs-lisp
 (use-package general
-  :after evil)
+  :after evil
+  :config
+
+  ;; Buffer-specific bindings
+  (general-create-definer leader-buffer-def
+    :prefix "C-b"
+    :states '(normal visual))
+
+  ;; Code specific map
+  (general-create-definer leader-code-def
+    :prefix "C-c"
+    :states '(normal visual))
+
+  ;; General emacs commands such as edit config files
+  (general-create-definer leader-emacs-def
+    :prefix "C-e"
+    :states '(normal visual))
+
+  ;; File-specific bindings
+  (general-create-definer leader-file-def
+    :prefix "C-f"
+    :states '(normal visual))
+
+  ;; Source control commands
+  (general-create-definer leader-scm-def
+    :prefix "C-g"
+    :states '(normal visual))
+
+  ;; Various help and information
+  (general-create-definer leader-help-def
+    :prefix "C-h"
+    :states '(normal visual))
+
+  ;; Major-mode-specific bindings
+  (general-create-definer leader-mode-def
+    :prefix "C-c"
+    :states '(normal visual))
+
+  ;; Project-specific bindings
+  (general-create-definer leader-project-def
+    :keymaps 'projectile-mode-map
+    :prefix "C-p"
+    :states '(normal visual))
+
+  ;; Already bound so unbind from various built in packages and evil.el, this
+  ;; causes an error during startup where it says that "C-t is not a leader key".
+  ;; Unbind all
+  (define-key global-map (kbd "C-t") nil)
+  (define-key evil-normal-state-map (kbd "C-t") nil)
+  (define-key evil-insert-state-map (kbd "C-t") nil)
+  (general-create-definer leader-toggle-def
+    :prefix "C-t"
+    :states '(normal insert visual))
+
+  ;; Window bindings
+  (general-create-definer leader-window-def
+    :prefix "C-w"
+    :states '(normal visual))
+
+  (leader-file-def
+   "f" 'find-file)
+
+  (leader-emacs-def
+   "c" '(lambda ()
+          (interactive)
+          (find-file (expand-file-name "README.org" user-emacs-directory))))
+
+  (leader-buffer-def
+   "d" 'kill-current-buffer)
+
+  (leader-toggle-def
+   "l" 'toggle-line-number-mode)
+
+  (leader-mode-def
+   :prefix "C-m"
+   :keymaps 'smerge-mode-map
+   "n" 'smerge-next
+   "p" 'smerge-prev
+   "d" 'smerge-diff-base
+   "u" 'smerge-keep-upper
+   "l" 'smerge-keep-lower))
 #+END_SRC
 
 **** projectile.el
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :after general
-  :config
-  (projectile-mode +1))
+    (use-package projectile
+      :after general
+      :config
+      (projectile-mode +1)
+    ;; Projectile
+    (leader-project-def
+     "a" 'projectile-add-known-project
+     "d" 'projectile-remove-known-project
+     "p" 'projectile-switch-project
+     "f" 'projectile-find-file
+     "i" 'projectile-invalidate-cache
+     "k" 'projectile-kill-buffer)
+
+  )
 #+END_SRC
 
 **** doom-modeline.el
@@ -282,8 +372,14 @@ Since we're n00bs, we need to see the key options sometimes.
 
 **** magit.el and magit-todos.el and git-gutter.el
 #+BEGIN_SRC emacs-lisp
-(use-package magit
-  :after evil)
+      (use-package magit
+	:after evil
+      :config
+ (leader-scm-def
+     "s" 'magit-status
+     "t" 'magit-todos-list)
+
+  )
 #+END_SRC
 
 ToDo in project repositories
@@ -322,16 +418,36 @@ Hilight where the file is changed in the fringes
 **** lookup.el
 Doom emacs seems to do a lot more, this doesn't seem to work in this config to lookup "use-package" but it works in Doom Emacs. Investigate.
 #+BEGIN_SRC emacs-lisp
-(use-package lookup
-  :straight (lookup :type git :host github :repo "aaronjensen/emacs-lookup" :commit "6ffdb61ef7c70077dee45330d4444a0eec559e01")
-  :after general)
+      (use-package lookup
+	:straight (lookup :type git :host github :repo "aaronjensen/emacs-lookup" :commit "6ffdb61ef7c70077dee45330d4444a0eec559e01")
+	:after general
+      :config
+    ;; lookup
+    (leader-code-def
+     "h" #'+lookup/documentation)
+
+  )
 #+END_SRC
 
 **** helpful.el
 More helpful help
 #+BEGIN_SRC emacs-lisp
-(use-package helpful
-  :after general)
+      (use-package helpful
+	:after general
+      :config
+      (leader-help-def
+     "k" #'helpful-key
+     "o" #'helpful-symbol
+     "v" #'helpful-variable
+     "x" #'helpful-command
+     "F" #'helpful-function
+     "f" #'helpful-callable)
+
+    ;; helpful
+    (leader-code-def
+     "d" #'helpful-at-point)
+
+  )
 #+END_SRC
 
 *** Completions
@@ -353,10 +469,22 @@ Basically, we want to select items orderless instead of matching completions fro
 #+END_SRC
 **** consult.el and consult-flycheck.el
 #+BEGIN_SRC emacs-lisp
-  (use-package consult
-    :after general
+    (use-package consult
+      :after general
+  :config
+     ;; consult
+    (leader-buffer-def
+     "b" #'consult-buffer)
+   
+       (leader-file-def
+     "r" #'consult-recent-file)
 
-    )
+    ;; One-off to re-define keys in the stock C-x
+    (general-define-key
+     :prefix "C-x"
+     "b" #'consult-buffer)
+
+      )
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package consult-flycheck
@@ -403,16 +531,20 @@ Basically, we want to select items orderless instead of matching completions fro
 
 **** flycheck.el
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :custom
-  (flycheck-indication-mode 'right-fringe "Move the indicator to the right fringe to allow git-gutter")
-  :after lsp-mode
-  ;;:hook (lsp-mode . flycheck-mode)
-  :init
-  (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
-        flycheck-idle-change-delay 0.8)
-  :config
-  (global-flycheck-mode t))
+    (use-package flycheck
+      :custom
+      (flycheck-indication-mode 'right-fringe "Move the indicator to the right fringe to allow git-gutter")
+      :after lsp-mode
+      ;;:hook (lsp-mode . flycheck-mode)
+      :init
+      (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change)
+	    flycheck-idle-change-delay 0.8)
+     :config
+	(global-flycheck-mode t)
+     (leader-code-def
+      "n" 'flycheck-next-error
+      "p" 'flycheck-previous-error
+      "l" 'flycheck-list-errors))
 #+END_SRC
 
 **** rainbow-delimiters.el
@@ -689,6 +821,7 @@ and ends with '#+END: toc', and insert a ToC as its content, replacing the old c
               (insert "\n" (mapconcat 'identity (nreverse headlines) "\n") "\n")))
         (message "Warning: No # BEGIN_TOC block found.")))))
 #+END_SRC
+
 *** YAML Mode
 #+BEGIN_SRC emacs-lisp
   (use-package yaml-mode
@@ -768,154 +901,30 @@ agi.yaml file in any of the parent directories of the opened buffer.
   (add-hook 'find-file-hook 'agi-mode-maybe-activate)
 #+END_SRC
 
-** Key Bindings
-:PROPERTIES:
-:header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
-:END:
+#+BEGIN_COMMENT
+Had initially tried creating metapackages that depend on other packages, to collect all of the keybindings in one place
+but this is not needed.
+Key Bindings
+PROPERTIES:
+header-args:emacs-lisp: :tangle ~/.emacs.custom/init.el
+END:
 
 The key bindings package is a meta-package without a file. This will depend on all packages that provide key bindings to collect the bindings in one place, here.
 
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'straight-built-in-pseudo-packages 'keybindings)
-(use-package keybindings
-  ;;:ensure nil
-  ;;:straight nil
-  :no-require t
-  ;;:straight (:type built-in)
-  :after (straight projectile magit lookup helpful consult)
-  :config
-  (message "test")
++BEGIN_SRC emacs-lisp
+  (add-to-list 'straight-built-in-pseudo-packages 'keybindings)
+  (use-package keybindings
+    ;;:ensure nil
+    ;;:straight nil
+    :no-require t
+    ;;:straight (:type built-in)
+    :after (straight projectile magit lookup helpful consult)
+    :config
+    (message "test")
 
-  ;; Buffer-specific bindings
-  (general-create-definer leader-buffer-def
-    :prefix "C-b"
-    :states '(normal visual))
-
-  ;; Code specific map
-  (general-create-definer leader-code-def
-    :prefix "C-c"
-    :states '(normal visual))
-
-  ;; General emacs commands such as edit config files
-  (general-create-definer leader-emacs-def
-    :prefix "C-e"
-    :states '(normal visual))
-
-  ;; File-specific bindings
-  (general-create-definer leader-file-def
-    :prefix "C-f"
-    :states '(normal visual))
-
-  ;; Source control commands
-  (general-create-definer leader-scm-def
-    :prefix "C-g"
-    :states '(normal visual))
-
-  ;; Various help and information
-  (general-create-definer leader-help-def
-    :prefix "C-h"
-    :states '(normal visual))
-
-  ;; Major-mode-specific bindings
-  (general-create-definer leader-mode-def
-    :prefix "C-c"
-    :states '(normal visual))
-
-  ;; Project-specific bindings
-  (general-create-definer leader-project-def
-    :keymaps 'projectile-mode-map
-    :prefix "C-p"
-    :states '(normal visual))
-
-  ;; Already bound so unbind from various built in packages and evil.el, this
-  ;; causes an error during startup where it says that "C-t is not a leader key".
-  ;; Unbind all
-  (define-key global-map (kbd "C-t") nil)
-  (define-key evil-normal-state-map (kbd "C-t") nil)
-  (define-key evil-insert-state-map (kbd "C-t") nil)
-  (general-create-definer leader-toggle-def
-    :prefix "C-t"
-    :states '(normal insert visual))
-
-  ;; Window bindings
-  (general-create-definer leader-window-def
-    :prefix "C-w"
-    :states '(normal visual))
-
-  (leader-file-def
-   "f" 'find-file)
-
-  (leader-emacs-def
-   "c" '(lambda ()
-	  (interactive)
-	  (find-file (expand-file-name "README.org" user-emacs-directory))))
-
-  (leader-code-def
-   "n" 'flycheck-next-error
-   "p" 'flycheck-previous-error
-   "l" 'flycheck-list-errors)
-
-  (leader-buffer-def
-   "d" 'kill-current-buffer)
-
-  (leader-toggle-def
-   "l" 'toggle-line-number-mode)
-
-  (leader-mode-def
-   :prefix "C-m"
-   :keymaps 'smerge-mode-map
-   "n" 'smerge-next
-   "p" 'smerge-prev
-   "d" 'smerge-diff-base
-   "u" 'smerge-keep-upper
-   "l" 'smerge-keep-lower)
-
-
-  ;; Projectile
-  (leader-project-def
-   "a" 'projectile-add-known-project
-   "d" 'projectile-remove-known-project
-   "p" 'projectile-switch-project
-   "f" 'projectile-find-file
-   "i" 'projectile-invalidate-cache
-   "k" 'projectile-kill-buffer)
-
-  (leader-scm-def
-   "s" 'magit-status
-   "t" 'magit-todos-list)
-
-  ;; lookup
-  (leader-code-def
-   "h" #'+lookup/documentation)
-
-  ;; helpful
-  (leader-code-def
-   "d" #'helpful-at-point)
-
-  (leader-help-def
-   "k" #'helpful-key
-   "o" #'helpful-symbol
-   "v" #'helpful-variable
-   "x" #'helpful-command
-   "F" #'helpful-function
-   "f" #'helpful-callable)
-
-
-  ;; consult
-  (leader-buffer-def
-   "b" #'consult-buffer)
-
-  (leader-file-def
-   "r" #'consult-recent-file)
-
-  ;; One-off to re-define keys in the stock C-x
-  (general-define-key
-   :prefix "C-x"
-   "b" #'consult-buffer)
-
-
-  )
-#+END_SRC
+    )
++END_SRC
+#+END_COMMENT
 
 * On save (README.org)
 :PROPERTIES:
